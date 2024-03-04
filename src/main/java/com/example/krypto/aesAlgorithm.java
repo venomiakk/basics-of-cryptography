@@ -236,19 +236,21 @@ public class aesAlgorithm {
             }
         }
         subBytes(block);
-        System.out.println(Arrays.deepToString(block));
+        System.out.println("subBytes: " + Arrays.deepToString(block));
         shiftRows(block);
-        System.out.println(Arrays.deepToString(block));
+        System.out.println("shiftRows: " + Arrays.deepToString(block));
         addRoundKey(block, key);
-        System.out.println(Arrays.deepToString(block));
+        System.out.println("addRoundKey: " + Arrays.deepToString(block));
         mixColumns(block);
-        System.out.println(Arrays.deepToString(block));
-        //System.out.println("Initial round: 1");
+        System.out.println("mixColumns: " + Arrays.deepToString(block));
         keyExpansion();
+        System.out.println("keyExpansion: " + Arrays.deepToString(block));
+        //System.out.println("Initial round: 1");
+        //keyExpansion();
         //addRoundKey();
 
         //rounds from 2 to numberOfRounds-1
-        for (int i = 1; i < numberOfRounds; i++) {
+        for (int i = 2; i < numberOfRounds; i++) {
             //System.out.println(i);
             //subBytes(block);
             //shiftRows();
@@ -310,8 +312,6 @@ public class aesAlgorithm {
             }
         }
         //Are negative numbers correct?
-        System.out.println("subBytes: " + Arrays.deepToString(block));
-        //System.out.println(sbox[122]);
     }
     private void mixColumns(byte[][] block) {
         byte[] interimColumn = new byte[4];
@@ -324,12 +324,28 @@ public class aesAlgorithm {
         byte b02 = 0x02, b03 = 0x03;
         for (int i = 0; i < 4; i++) {
             //Should interimBlock x and y be reversed there?
-            
-            //TODO
-            interimColumn[0] = (byte) ((2*interimBlock[i][0])^(3*interimBlock[i][1])^(interimBlock[i][2])^(interimBlock[i][3]));
-            interimColumn[1] = (byte) ((interimBlock[i][0])^(2*interimBlock[i][1])^(3*interimBlock[i][2])^(interimBlock[i][3]));
-            interimColumn[2] = (byte) ((interimBlock[i][0])^(interimBlock[i][1])^(2*interimBlock[i][2])^(3*interimBlock[i][3]));
-            interimColumn[3] = (byte) ((3*interimBlock[i][0])^(interimBlock[i][1])^(interimBlock[i][2])^(2*interimBlock[i][3]));
+            //interimColumn[0] = (byte) (mixColumnsMultiplication(b02,interimBlock[i][0])
+            //        ^mixColumnsMultiplication(b03,interimBlock[i][1])
+            //        ^(interimBlock[i][2])
+            //        ^(interimBlock[i][3]));
+            //interimColumn[1] = (byte) ((interimBlock[i][0])
+            //        ^mixColumnsMultiplication(b02,interimBlock[i][1])
+            //        ^mixColumnsMultiplication(b03,interimBlock[i][2])
+            //        ^(interimBlock[i][3]));
+            //interimColumn[2] = (byte) ((interimBlock[i][0])
+            //        ^(interimBlock[i][1])
+            //        ^mixColumnsMultiplication(b02,interimBlock[i][2])
+            //        ^mixColumnsMultiplication(b03,interimBlock[i][3]));
+            //interimColumn[3] = (byte) (mixColumnsMultiplication(b03,interimBlock[i][0])
+            //        ^(interimBlock[i][1])
+            //        ^(interimBlock[i][2])
+            //        ^mixColumnsMultiplication(b02,interimBlock[i][3]));
+
+            //Not sure if this works properly
+            interimColumn[0] = (byte)(mul2[interimBlock[i][0] &0xff]^mul3[interimBlock[i][1] &0xff]^interimBlock[i][2]^interimBlock[i][3]) ;
+            interimColumn[1] = (byte)(interimBlock[i][0]^mul2[interimBlock[i][1] &0xff]^mul3[interimBlock[i][2] &0xff]^interimBlock[i][3]);
+            interimColumn[2] = (byte)(interimBlock[i][0]^interimBlock[i][1]^mul2[interimBlock[i][2] &0xff]^mul3[interimBlock[i][3] &0xff]);
+            interimColumn[3] = (byte)(mul3[interimBlock[i][0] &0xff]^interimBlock[i][1]^interimBlock[i][2]^mul3[interimBlock[i][3] &0xff]);
 
             for (int j = 0; j < 4; j++) {
                 block[i][j] = interimColumn[j];
@@ -337,10 +353,18 @@ public class aesAlgorithm {
         }
     }
 
-    private byte mixColumnsMultiplication(byte messageByte, byte matrixByte) {
+    private byte mixColumnsMultiplication(byte matrixByte, byte messageByte) {
       byte result = 0;
       //TODO
-      return result;
+        if (matrixByte == 0x02){
+        //IF older_bit==1 -> result = messageByte ^ 0x1b
+        //ELSE -> result = messageByte<<1
+
+        } else /*matrixByte == 0x03*/{
+        //    result = ???
+
+        }
+        return result;
     };
 
 
