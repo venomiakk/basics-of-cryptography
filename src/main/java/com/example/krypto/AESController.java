@@ -6,6 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import java.io.UnsupportedEncodingException;
+
 public class AESController {
     @FXML
     private Button saveCipherButton;
@@ -65,8 +67,9 @@ public class AESController {
 
 
     @FXML
-    protected void onGenerateKeyButtonClick() {
+    protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
         System.out.println("generuje klucz");
+        aesAlgorithm AES = new aesAlgorithm();
 
     }
 
