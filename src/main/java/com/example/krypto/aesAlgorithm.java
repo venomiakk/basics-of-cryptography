@@ -156,7 +156,8 @@ public class aesAlgorithm {
     *       key - hex converted to bytes
     */
     public void aesEncryption(byte[] messageParam, byte[][] keyParam){
-
+        //TODO można zapisać długość dodanych zer aby przy dekodowaniu móc ją obciąć
+        //TODO ostatni bajt może pełnić taką role
         byte[] interimMessage = messageParam.clone();
         //Change to HEX?
 
