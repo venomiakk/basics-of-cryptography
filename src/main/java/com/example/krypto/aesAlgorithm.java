@@ -191,7 +191,7 @@ public class aesAlgorithm {
      * numberOfRounds = 10 for 128-bit key
      */
     private int numberOfRounds = 10;
-    private String message = "abcdefgłioubdfsbdfbfsvvvv";
+    private String message = "abcdefgł";
 
     /*
      * 128-bit key
@@ -375,8 +375,7 @@ public class aesAlgorithm {
         //System.out.println("keyExpansion: " + Arrays.deepToString(block));
         //System.out.println("Initial round: 1");
 
-        //INITIAL ROUND
-        addRoundKey(block, roundKeys[0]);
+        //addRoundKey(block, key);
 
         //TEMPORARY BLOCK COPY:
         //int k  = 0;
@@ -387,11 +386,14 @@ public class aesAlgorithm {
         //}
         //System.out.println("Zaszyfrowany: " + Arrays.toString(interimBlock));
 
+        //INITIAL ROUND
+        addRoundKey(block, roundKeys[0]);
+
         for (int i = 1; i < numberOfRounds; i++) {
             //System.out.println(i);
             subBytes(block);
             shiftRows(block);
-            mixColumns(block);
+            //mixColumns(block);
             addRoundKey(block, roundKeys[i]);
         }
 
@@ -577,19 +579,19 @@ public class aesAlgorithm {
         //inv_shiftRows(block);
         //inv_addRoundKey(block, keyParam);
         //inv_mixColumns(block);
-
+        //inv_addRoundKey(block, key);
         inv_addRoundKey(block, roundKeys[numberOfRounds]);
 
         for (int i = numberOfRounds-1; i >= 1 ; i--) {
-            inv_addRoundKey(block, roundKeys[i]);
-            inv_mixColumns(block);
-            inv_shiftRows(block);
             inv_subBytes(block);
+            inv_shiftRows(block);
+            inv_addRoundKey(block, roundKeys[i]);
+            //inv_mixColumns(block);
         }
 
-        inv_addRoundKey(block, roundKeys[0]);
-        inv_shiftRows(block);
         inv_subBytes(block);
+        inv_shiftRows(block);
+        inv_addRoundKey(block, roundKeys[0]);
 
         return block;
     }
