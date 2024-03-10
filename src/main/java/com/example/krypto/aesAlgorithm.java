@@ -1,7 +1,6 @@
 package com.example.krypto;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class aesAlgorithm {
@@ -192,7 +191,7 @@ public class aesAlgorithm {
      * numberOfRounds = 10 for 128-bit key
      */
     private int numberOfRounds = 10;
-    private String message = "abcdefgłiou";
+    private String message = "abcdefgłioubdfsbdfbfsvvvv";
 
     /*
      * 128-bit key
@@ -204,6 +203,8 @@ public class aesAlgorithm {
             {0x8, 0x9, 0xa, 0xb},
             {0xc, 0xd, 0xe, 0xf}
     };
+
+    private byte[][][] roundKeys;
 
     private byte[] interimBlock = new byte[16];
 
@@ -220,10 +221,40 @@ public class aesAlgorithm {
         //System.out.println(key[1][3]);
         //TODO: trzeba wczytywać odrazu do bajtów(?) aby plik i tekst działał tak samo
         //TODO: zaimplementować wybór długości klucza
-        byte[] messageBytes = message.getBytes(/*StandardCharsets.UTF_8*/);
-        aesEncryption(messageBytes, key);
-        aesDecryption(interimBlock, key);
+        //TODO: Pobrać klucz i zrobić z niego blok
+        //System.out.println(Arrays.deepToString(key));
+        //System.out.println(key[3][0]);
 
+        //TODO: Dostosować do zmiennej długości klucza
+        roundKeys = new byte[numberOfRounds+1][4][4];
+        byte[][] tmpKey = keyExpansion(key, 1);
+        //System.out.println(Arrays.deepToString(tmpKey));
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                roundKeys[0][i][j] = tmpKey[i][j];
+            }
+        }
+
+        for (int i = 1; i <= numberOfRounds ; i++) {
+            tmpKey = keyExpansion(roundKeys[i-1], i+1);
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < 4; k++) {
+                    roundKeys[i][j][k] = tmpKey[j][k];
+                }
+            }
+            //System.out.println("klucz przed: " + Arrays.deepToString(roundKeys[i-1]));
+            //System.out.println("Klucz po: " + Arrays.deepToString(tmpKey));
+        }
+
+        //System.out.println(Arrays.deepToString(roundKeys));
+
+        byte[] messageBytes = message.getBytes(/*StandardCharsets.UTF_8*/);
+        byte[] cipher = aesEncryption(messageBytes, key);
+        System.out.println("Zaszyfrowane: " + Arrays.toString(cipher));
+
+        System.out.println("Deszyfrowanie:");
+        byte[] plainBytes = aesDecryption(cipher, key);
+        System.out.println(Arrays.toString(plainBytes));
         //byte[] a = message.getBytes();
         //System.out.println(Arrays.toString(a));
         //String b = new String(a);
@@ -235,11 +266,10 @@ public class aesAlgorithm {
      *       messageParam - bytes
      *       key - hex converted to bytes
      */
-    public void aesEncryption(byte[] messageParam, byte[][] keyParam) {
+    public byte[] aesEncryption(byte[] messageParam, byte[][] keyParam) {
         //TODO można zapisać długość dodanych zer aby przy dekodowaniu móc ją obciąć
         //TODO ostatni bajt może pełnić taką role
         byte[] interimMessage = messageParam.clone();
-        //Change to HEX?
 
         //Fit length of the message
         int len = messageParam.length / 16;
@@ -252,6 +282,8 @@ public class aesAlgorithm {
             desiredLen = len * 16;
         }
 
+
+
         //Fill empty spaces with '0'
         int numOfZeros = 0;
         byte[] formattedMessage = new byte[desiredLen];
@@ -262,10 +294,10 @@ public class aesAlgorithm {
                 formattedMessage[i] = 0;
                 numOfZeros++;
             }
-            //TODO coś z tym trzeba zrobić ale inaczej chyba
-            //if (numOfZeros!=0){
-            //    formattedMessage[formattedMessage.length-1] = (byte) numOfZeros;
-            //}
+            //TODO coś z tym określaniem dodanych 0 trzeba zrobić ale inaczej chyba
+            if (numOfZeros!=0){
+                formattedMessage[formattedMessage.length-1] = (byte) numOfZeros;
+            }
         }
 
         //System.out.println(Arrays.toString(formattedMessage));
@@ -274,6 +306,8 @@ public class aesAlgorithm {
         int numberOfBlocks = desiredLen / 16;
 
         //Divide to blocks 4x4
+        byte[] cipher = new byte[desiredLen];
+        int msgIndex = 0;
         int index = 0;
         byte[][] block = new byte[4][4];
         while (index < desiredLen) {
@@ -285,13 +319,20 @@ public class aesAlgorithm {
                 }
             }
             System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
-            //System.out.println(block[1][2]);
-            encrypt(block, keyParam);
-        }
 
+            byte[][] encryptedBlock = encrypt(block, keyParam);
+            //System.out.println(Arrays.deepToString(encryptedBlock));
+
+            for (int i = 0; i < encryptedBlock.length; i++) {
+                for (int j = 0; j < encryptedBlock[0].length; j++) {
+                    cipher[msgIndex++] = encryptedBlock[i][j];
+                }
+            }
+        }
+        return cipher;
     }
 
-    private void encrypt(byte[][] blockParam, byte[][] key) {
+    private byte[][] encrypt(byte[][] blockParam, byte[][] key) {
         /*
          * Steps:
          *   1. keyExpansion - generating numberOfRounds+1 subKeys (128-bit)
@@ -322,53 +363,85 @@ public class aesAlgorithm {
                 block[i][j] = blockParam[i][j];
             }
         }
-        subBytes(block);
+        //subBytes(block);
         //System.out.println("subBytes: " + Arrays.deepToString(block));
-        shiftRows(block);
+        //shiftRows(block);
         //System.out.println("shiftRows: " + Arrays.deepToString(block));
         //addRoundKey(block, key);
         //System.out.println("addRoundKey: " + Arrays.deepToString(block));
-        mixColumns(block);
+        //mixColumns(block);
         //System.out.println("mixColumns: " + Arrays.deepToString(block));
         //keyExpansion();
         //System.out.println("keyExpansion: " + Arrays.deepToString(block));
         //System.out.println("Initial round: 1");
-        //keyExpansion();
-        //addRoundKey();
+
+        //INITIAL ROUND
+        addRoundKey(block, roundKeys[0]);
 
         //TEMPORARY BLOCK COPY:
-        int k  = 0;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                interimBlock[k++] = block[i][j];
-            }
-        }
-        System.out.println(Arrays.toString(interimBlock));
+        //int k  = 0;
+        //for (int i = 0; i < 4; i++) {
+        //    for (int j = 0; j < 4; j++) {
+        //        interimBlock[k++] = block[i][j];
+        //    }
+        //}
+        //System.out.println("Zaszyfrowany: " + Arrays.toString(interimBlock));
 
-        //rounds from 2 to numberOfRounds-1
-        for (int i = 2; i < numberOfRounds; i++) {
+        for (int i = 1; i < numberOfRounds; i++) {
             //System.out.println(i);
-            //subBytes(block);
-            //shiftRows();
-            //mixColumns();
-            //addRoundKey();
+            subBytes(block);
+            shiftRows(block);
+            mixColumns(block);
+            addRoundKey(block, roundKeys[i]);
         }
 
         //System.out.println("Last round: 10");
-        //subBytes(block);
-        //shiftRows();
-        //addRoundKey();
+        subBytes(block);
+        shiftRows(block);
+        addRoundKey(block, roundKeys[numberOfRounds]);
+
+        return block;
     }
 
 
-    private void keyExpansion() {
-    //TODO keyExpansion
+    private byte[][] keyExpansion(byte[][] roundKey, int round) {
+    //TODO keyExpansion: Zapisywać klucze aby móc z nich skorzystać przy deszyfrowaniu
+        byte[][] currentKey = new byte[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                currentKey[i][j] = roundKey[i][j];
+            }
+        }
+
+        byte temp = currentKey[3][0];
+        currentKey[3][0] = currentKey[3][1];
+        currentKey[3][1] = currentKey[3][2];
+        currentKey[3][2] = currentKey[3][3];
+        currentKey[3][3] = temp;
+
+        for (int i = 0; i < 4; i++) {
+            currentKey[3][i] = (byte) sbox[(currentKey[3][i] & 0xff)];
+        }
+
+        currentKey[0][0] ^= (byte) rcon[round];
+        for (int i = 0; i < 4; i++) {
+            currentKey[0][i] ^= currentKey[3][i];
+        }
+
+        //TODO Dostosować do zmiennej długości klucza
+        for (int i = 1; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                currentKey[i][j] ^= currentKey[i-1][j];
+            }
+        }
+        return currentKey;
     }
 
     private void addRoundKey(byte[][] block, byte[][] roundKey) {
         //System.out.println(Arrays.deepToString(block));
         //System.out.println(Arrays.deepToString(roundKey));
         //TODO chyba trzeba to inaczej
+        //TODO addRoundKey: Trzeba uwzględnić długość klucza?
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 block[i][j] ^= roundKey[i][j];
@@ -424,15 +497,15 @@ public class aesAlgorithm {
         byte b2 = 0x02, b3 = 0x03;
         for (int i = 0; i < 4; i++) {
 
-            //interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ interimBlock[i][2] ^ interimBlock[i][3]);
-            //interimColumn[1] = (byte) (interimBlock[i][0] ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ interimBlock[i][3]);
-            //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
-            //interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ interimBlock[i][1] ^ interimBlock[i][2] ^ mul3[interimBlock[i][3] & 0xff]);
+            interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ interimBlock[i][2] ^ interimBlock[i][3]);
+            interimColumn[1] = (byte) (interimBlock[i][0] ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ interimBlock[i][3]);
+            interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
+            interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ interimBlock[i][1] ^ interimBlock[i][2] ^ mul3[interimBlock[i][3] & 0xff]);
 
-            interimColumn[0] = (byte) (multiply(b2, interimBlock[i][0]) ^ multiply(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
-            interimColumn[1] = (byte) (interimBlock[i][0] ^ multiply(b2,interimBlock[i][1]) ^ multiply(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
-            interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ multiply(b2,interimBlock[i][2]) ^ multiply(b3,interimBlock[i][3]));
-            interimColumn[3] = (byte) (multiply(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ multiply(b3,interimBlock[i][3]));
+            //interimColumn[0] = (byte) (multiply(b2, interimBlock[i][0]) ^ multiply(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
+            //interimColumn[1] = (byte) (interimBlock[i][0] ^ multiply(b2,interimBlock[i][1]) ^ multiply(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
+            //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ multiply(b2,interimBlock[i][2]) ^ multiply(b3,interimBlock[i][3]));
+            //interimColumn[3] = (byte) (multiply(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ multiply(b3,interimBlock[i][3]));
 
             for (int j = 0; j < 4; j++) {
                 block[i][j] = interimColumn[j];
@@ -459,14 +532,18 @@ public class aesAlgorithm {
     }
 
 
-    public void aesDecryption(byte[] messageParam, byte[][] keyParam) {
+    public byte[] aesDecryption(byte[] messageParam, byte[][] keyParam) {
         byte[] interimMessage = messageParam.clone();
+        //System.out.println(Arrays.toString(interimMessage));
 
+        //TODO: Jakieś exception
         if (interimMessage.length % 16 != 0){
             System.out.println("zła długość szyfrogramu!");
-            return;
+            return interimMessage;
         }
 
+        byte[] plainText = new byte[interimMessage.length];
+        int msgIndex = 0;
         int index = 0;
         byte[][] block = new byte[4][4];
         while (index < interimMessage.length) {
@@ -477,23 +554,44 @@ public class aesAlgorithm {
                 }
             }
             System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
-            decrypt(block, keyParam);
-        }
 
+            byte[][] decryptedBlock = decrypt(block, keyParam);
+            for (int i = 0; i < decryptedBlock.length; i++) {
+                for (int j = 0; j < decryptedBlock[0].length; j++) {
+                    plainText[msgIndex++] = decryptedBlock[i][j];
+                }
+            }
+
+        }
+        return plainText;
     }
 
-    private void decrypt(byte[][] blockParam, byte[][] keyParam) {
+    private byte[][] decrypt(byte[][] blockParam, byte[][] keyParam) {
         byte[][] block = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 block[i][j] = blockParam[i][j];
             }
         }
-        inv_subBytes(block);
-        inv_shiftRows(block);
+        //inv_subBytes(block);
+        //inv_shiftRows(block);
         //inv_addRoundKey(block, keyParam);
-        inv_mixColumns(block);
-        System.out.println("Zdeszyfrowany: " + Arrays.deepToString(block));
+        //inv_mixColumns(block);
+
+        inv_addRoundKey(block, roundKeys[numberOfRounds]);
+
+        for (int i = numberOfRounds-1; i >= 1 ; i--) {
+            inv_addRoundKey(block, roundKeys[i]);
+            inv_mixColumns(block);
+            inv_shiftRows(block);
+            inv_subBytes(block);
+        }
+
+        inv_addRoundKey(block, roundKeys[0]);
+        inv_shiftRows(block);
+        inv_subBytes(block);
+
+        return block;
     }
 
     private void inv_subBytes(byte[][] block){
