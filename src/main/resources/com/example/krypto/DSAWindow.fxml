@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="CENTER" prefHeight="639.0" prefWidth="870.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.krypto.DSAController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <children>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="klucz" />
+        <HBox prefHeight="13.0" prefWidth="262.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="q oraz g" wrappingWidth="181.33662033081055" />
+            <TextField fx:id="qAndGField" editable="false" prefHeight="26.0" prefWidth="666.0" />
+            </children>
+        </HBox>
+        <HBox prefHeight="29.0" prefWidth="710.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz publiczny: y" wrappingWidth="180.5367088317871" />
+            <TextField fx:id="publicYKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+         </children>
+        </HBox>
+      <HBox prefHeight="29.0" prefWidth="710.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz prywatny: x" wrappingWidth="180.5367088317871" />
+            <TextField fx:id="privateXKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+         </children>
+      </HBox>
+      <HBox prefHeight="29.0" prefWidth="710.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="MOD p" wrappingWidth="180.5367088317871" />
+            <TextField fx:id="modPField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+         </children>
+      </HBox>
+      <HBox prefHeight="29.0" prefWidth="710.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wygeneruj wartosci kluczy" wrappingWidth="180.5367088317871" />
+            <Button fx:id="generateKeyButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Generuj klucze" />
+         </children>
+      </HBox>
+        <HBox prefHeight="0.0" prefWidth="710.0">
+            <children>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wczytaj klucz z pliku" wrappingWidth="125.33666229248047" />
+                <TextField fx:id="saveKeyFileField" promptText="nazwa pliku" />
+                <Button fx:id="loadKeyFileButton" mnemonicParsing="false" onAction="#onloadKeyFileButtonClick" prefHeight="26.0" prefWidth="90.0" text="wczytaj">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Button>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="zapisz klucz do pliku" wrappingWidth="127.73678016662598">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Text>
+                <TextField fx:id="loadKeyFileField" promptText="nazwa pliku" />
+                <Button fx:id="saveKeyFileButton" mnemonicParsing="false" onAction="#onsaveKeyFileButtonClick" prefHeight="26.0" prefWidth="105.0" text="zapisz">
+                    <HBox.margin>
+                        <Insets left="20.0" />
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="szyfrowanie/deszyfrowanie" />
+        <HBox prefHeight="391.0" prefWidth="830.0">
+            <children>
+                <VBox prefHeight="344.0" prefWidth="562.0">
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Otworz plik zawierajacy tekst jawny" wrappingWidth="221.15703964233398" />
+                        <HBox prefHeight="24.0" prefWidth="362.0">
+                            <children>
+                                <TextField fx:id="textNameField" prefHeight="26.0" prefWidth="243.0" promptText="nazwa pliku z tekstem jawnym" />
+                                <Button fx:id="openTextFileButton" mnemonicParsing="false" onAction="#onopenTextFileButtonClick" prefHeight="26.0" prefWidth="98.0" text="otworz" />
+                            </children>
+                        </HBox>
+                        <TextArea fx:id="textArea" prefHeight="258.0" prefWidth="270.0" promptText="podaj tekst jawny">
+                            <VBox.margin>
+                                <Insets top="30.0" />
+                            </VBox.margin>
+                        </TextArea>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="zapisz plik zawierajacy tekst jawny" wrappingWidth="186.1366844177246" />
+                        <HBox prefHeight="31.0" prefWidth="362.0">
+                            <children>
+                                <TextField fx:id="saveTextField" prefHeight="26.0" prefWidth="251.0" promptText="nazwa pliku z tekstem jawnym" />
+                                <Button fx:id="saveTextButton" mnemonicParsing="false" onAction="#onsaveTextButtonClick" prefHeight="26.0" prefWidth="94.0" text="zapisz" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+                <VBox prefHeight="344.0" prefWidth="315.0">
+                    <children>
+                        <Button fx:id="encipherButton" mnemonicParsing="false" onAction="#onencipherButtonClick" prefHeight="26.0" prefWidth="78.0" text="szyfruj -&gt;">
+                            <VBox.margin>
+                                <Insets top="80.0" />
+                            </VBox.margin>
+                        </Button>
+                        <Button fx:id="decipherButton" mnemonicParsing="false" onAction="#ondecipherButtonClick" text="&lt;-deszyfruj">
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </Button>
+                        <CheckBox mnemonicParsing="false" text="plik">
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                        <CheckBox mnemonicParsing="false" text="okno">
+                            <VBox.margin>
+                                <Insets top="10.0" />
+                            </VBox.margin>
+                        </CheckBox>
+                    </children>
+                </VBox>
+                <VBox prefHeight="344.0" prefWidth="562.0">
+                    <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="otworz plik zawierajacy szyfrogram" wrappingWidth="221.15703964233398" />
+                        <HBox prefHeight="24.0" prefWidth="362.0">
+                            <children>
+                                <TextField fx:id="openCipherFileField" prefHeight="26.0" prefWidth="243.0" promptText="nazwa pliku z szyfrogramem" />
+                                <Button fx:id="openCipherButton" mnemonicParsing="false" onAction="#onopenCipherButtonClick" prefHeight="26.0" prefWidth="98.0" text="otworz" />
+                            </children>
+                        </HBox>
+                        <TextArea fx:id="cipherArea" prefHeight="258.0" prefWidth="270.0" promptText="tutaj podaj szyfrogram">
+                            <VBox.margin>
+                                <Insets top="30.0" />
+                            </VBox.margin>
+                        </TextArea>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="zapisz plik zawierajacy szyfrogram" wrappingWidth="186.1366844177246" />
+                        <HBox prefHeight="31.0" prefWidth="362.0">
+                            <children>
+                                <TextField fx:id="saveCipherField" prefHeight="26.0" prefWidth="251.0" promptText="nazwa pliku z szyfrogramem" />
+                                <Button fx:id="saveCipherButton" mnemonicParsing="false" onAction="#onsaveCipherButtonClick" prefHeight="26.0" prefWidth="94.0" text="zapisz" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>
