@@ -629,7 +629,14 @@ public class aesAlgorithm {
             }
 
         }
-        return plainText;
+
+        //TODO: Nwm czy nie będzie to przedszkadzało plikom
+        int numOfZeros = plainText[plainText.length-1];
+        byte[] output = new byte[plainText.length-numOfZeros];
+        for (int i = 0; i < output.length; i++) {
+            output[i] = plainText[i];
+        }
+        return output;
     }
 
     private byte[][] decrypt(byte[][] blockParam) {
