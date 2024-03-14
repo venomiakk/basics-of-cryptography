@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -38,6 +38,13 @@
                 </Button>
             </children>
         </HBox>
+      <HBox prefHeight="20.0" prefWidth="830.0">
+         <children>
+            <RadioButton fx:id="bit128Radio" mnemonicParsing="false" text="128 bit" />
+            <RadioButton fx:id="bit192Radio" mnemonicParsing="false" text="192 bit" />
+            <RadioButton fx:id="bit256Radio" mnemonicParsing="false" text="256 bit" />
+         </children>
+      </HBox>
         <HBox prefHeight="0.0" prefWidth="710.0">
             <children>
                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wczytaj klucz z pliku" wrappingWidth="125.33666229248047" />
@@ -98,16 +105,8 @@
                                 <Insets top="10.0" />
                             </VBox.margin>
                         </Button>
-                        <CheckBox mnemonicParsing="false" text="plik">
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
-                        <CheckBox mnemonicParsing="false" text="okno">
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
-                        </CheckBox>
+                  <RadioButton fx:id="textRadio" mnemonicParsing="false" text="text" />
+                  <RadioButton fx:id="plikRadio" mnemonicParsing="false" text="plik" />
                     </children>
                 </VBox>
                 <VBox prefHeight="344.0" prefWidth="562.0">

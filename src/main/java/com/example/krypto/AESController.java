@@ -1,14 +1,14 @@
 package com.example.krypto;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class AESController {
+public class AESController implements Initializable {
     @FXML
     private Button saveCipherButton;
 
@@ -63,6 +63,20 @@ public class AESController {
     @FXML
     private TextArea cipherArea;
 
+    @FXML
+    private RadioButton plikRadio;
+
+    @FXML
+    private RadioButton textRadio;
+
+    @FXML
+    private RadioButton bit128Radio;
+
+    @FXML
+    private RadioButton bit192Radio;
+
+    @FXML
+    private RadioButton bit256Radio;
 
 
 
@@ -119,5 +133,18 @@ public class AESController {
     protected void ondecipherButtonClick() {
         System.out.println("deszyfruj");
 
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ToggleGroup group = new ToggleGroup();
+        ToggleGroup group1 = new ToggleGroup();
+        plikRadio.setToggleGroup(group);
+        plikRadio.setSelected(true);
+        textRadio.setToggleGroup(group);
+
+        bit128Radio.setToggleGroup(group1);
+        bit192Radio.setToggleGroup(group1);
+        bit256Radio.setToggleGroup(group1);
     }
 }
