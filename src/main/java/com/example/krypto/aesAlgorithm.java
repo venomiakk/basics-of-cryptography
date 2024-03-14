@@ -221,41 +221,14 @@ public class aesAlgorithm {
     };
 
 
-    /*
-     *   @temp_variables
-     *   message
-     *   key
-     *
-     */
-
-    /*
-     * numberOfRounds = 10 for 128-bit key
-     */
-    private int numberOfRounds = 10;
-    private String message = "a";
-
-    /*
-     * 128-bit key
-     * Hope this is right :)
-     */
-    private byte[][] key = {
-            {0x0, 0x1, 0x2, 0x3},
-            {0x4, 0x5, 0x6, 0x7},
-            {0x8, 0x9, 0xa, 0xb},
-            {0xc, 0xd, 0xe, 0xf}
-    };
-
     private byte[][][] roundKeys;
+    private int numberOfRounds;
+    private byte[] msgBytes;
 
-    private byte[] interimBlock = new byte[16];
 
-    /*
-     * constructor:
-     *   @params:
-     *       message/input - text/file to encrypt/decrypt
-     *       key - key used to encrypt/decrypt
-     */
-    public aesAlgorithm() throws UnsupportedEncodingException {
+    public aesAlgorithm(byte[][] key, int roundsNum) {
+        numberOfRounds = roundsNum;
+
         //System.out.println(Arrays.toString(message.getBytes()));
         //System.out.println(key.length);
         //Divide message on 16 byte blocks
@@ -288,14 +261,18 @@ public class aesAlgorithm {
         }
 
         //System.out.println(Arrays.deepToString(roundKeys));
-        System.out.println("Szyfrowanie:");
-        byte[] messageBytes = message.getBytes(/*StandardCharsets.UTF_8*/);
-        byte[] cipher = aesEncryption(messageBytes, key);
-        System.out.println("Zaszyfrowane: " + Arrays.toString(cipher));
+        //String messageStr = "abcde";
+        //byte[] message = messageStr.getBytes();
+        //System.out.println("Szyfrowanie:");
+        ////byte[] messageBytes = message.getBytes(/*StandardCharsets.UTF_8*/);
+        //byte[] cipher = aesEncryption(message);
+        //System.out.println("Zaszyfrowane: " + Arrays.toString(cipher));
+        //
+        //System.out.println("Deszyfrowanie:");
+        //byte[] plainBytes = aesDecryption(cipher);
+        //System.out.println("Zdeszyfrowane: " + Arrays.toString(plainBytes));
 
-        System.out.println("Deszyfrowanie:");
-        byte[] plainBytes = aesDecryption(cipher, key);
-        System.out.println("Zdeszyfrowane: " + Arrays.toString(plainBytes));
+
         //byte[] a = message.getBytes();
         //System.out.println(Arrays.toString(a));
         //String b = new String(a);
@@ -307,7 +284,7 @@ public class aesAlgorithm {
      *       messageParam - bytes
      *       key - hex converted to bytes
      */
-    public byte[] aesEncryption(byte[] messageParam, byte[][] keyParam) {
+    public byte[] aesEncryption(byte[] messageParam) {
         //TODO można zapisać długość dodanych zer aby przy dekodowaniu móc ją obciąć
         //TODO ostatni bajt może pełnić taką role
         byte[] interimMessage = messageParam.clone();
@@ -361,7 +338,7 @@ public class aesAlgorithm {
             }
             System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
 
-            byte[][] encryptedBlock = encrypt(block, keyParam);
+            byte[][] encryptedBlock = encrypt(block);
             //System.out.println(Arrays.deepToString(encryptedBlock));
 
             for (int i = 0; i < encryptedBlock.length; i++) {
@@ -373,7 +350,7 @@ public class aesAlgorithm {
         return cipher;
     }
 
-    private byte[][] encrypt(byte[][] blockParam, byte[][] key) {
+    private byte[][] encrypt(byte[][] blockParam) {
         /*
          * Steps:
          *   1. keyExpansion - generating numberOfRounds+1 subKeys (128-bit)
@@ -427,26 +404,26 @@ public class aesAlgorithm {
         //}
         //System.out.println("Zaszyfrowany: " + Arrays.toString(interimBlock));
 
-        mixColumns(block);
+        //mixColumns(block);
         //System.out.println("MixColumns: "+Arrays.deepToString(block));
         //inv_mixColumns(block);
         //System.out.println("invMixColumns: " + Arrays.deepToString(block));
 
         //INITIAL ROUND
-        //addRoundKey(block, roundKeys[0]);
+        addRoundKey(block, roundKeys[0]);
 
         for (int i = 1; i < numberOfRounds; i++) {
             //System.out.println(i);
-            //subBytes(block);
-            //shiftRows(block);
+            subBytes(block);
+            shiftRows(block);
             //mixColumns(block);
-            //addRoundKey(block, roundKeys[i]);
+            addRoundKey(block, roundKeys[i]);
         }
 
         //System.out.println("Last round: 10");
-        //subBytes(block);
-        //shiftRows(block);
-        //addRoundKey(block, roundKeys[numberOfRounds]);
+        subBytes(block);
+        shiftRows(block);
+        addRoundKey(block, roundKeys[numberOfRounds]);
 
         return block;
     }
@@ -542,8 +519,21 @@ public class aesAlgorithm {
                 interimBlock[i][j] = block[i][j];
             }
         }
+        System.out.println("MIX_COLUMNS:");
+        System.out.println(Arrays.deepToString(interimBlock));
         byte b2 = 0x02, b3 = 0x03;
         for (int i = 0; i < 4; i++) {
+            interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ (interimBlock[i][2] & 0xff) ^ (interimBlock[i][3] & 0xff));
+            interimColumn[1] = (byte) ((interimBlock[i][0] & 0xff) ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ (interimBlock[i][3] & 0xff));
+            interimColumn[2] = (byte) ((interimBlock[i][0] & 0xff) ^ (interimBlock[i][1] & 0xff) ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
+            interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ (interimBlock[i][1] & 0xff) ^ (interimBlock[i][2] & 0xff) ^ mul3[interimBlock[i][3] & 0xff]);
+
+            //interimColumn[0] = (byte) (mul2[interimBlock[0][i] & 0xff] ^ mul3[interimBlock[1][i] & 0xff] ^ (interimBlock[2][i] & 0xff) ^ (interimBlock[3][i] & 0xff));
+            //interimColumn[1] = (byte) ((interimBlock[0][i] & 0xff) ^ mul2[interimBlock[1][i] & 0xff] ^ mul3[interimBlock[2][i] & 0xff] ^ (interimBlock[3][i] & 0xff));
+            //interimColumn[2] = (byte) ((interimBlock[0][i] & 0xff) ^ (interimBlock[1][i] & 0xff) ^ mul2[interimBlock[2][i] & 0xff] ^ mul3[interimBlock[3][i] & 0xff]);
+            //interimColumn[3] = (byte) (mul3[interimBlock[0][i] & 0xff] ^ (interimBlock[1][i] & 0xff) ^ (interimBlock[2][i] & 0xff) ^ mul3[interimBlock[3][i] & 0xff]);
+
+
             //interimColumn[0] = (byte) ((0x02*interimBlock[i][0]) ^ (0x03*interimBlock[i][1]) ^ (interimBlock[i][2]) ^ (interimBlock[i][3]));
             //interimColumn[1] = (byte) ((interimBlock[i][0]) ^ (0x02*interimBlock[i][1]) ^ (0x03*interimBlock[i][2]) ^ (interimBlock[i][3]));
             //interimColumn[2] = (byte) ((interimBlock[i][0]) ^ (interimBlock[i][1]) ^ (0x02*interimBlock[i][2]) ^ (0x03*interimBlock[i][3]));
@@ -554,20 +544,24 @@ public class aesAlgorithm {
             //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
             //interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ interimBlock[i][1] ^ interimBlock[i][2] ^ mul3[interimBlock[i][3] & 0xff]);
 
-            interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ (interimBlock[i][2] & 0xff) ^ (interimBlock[i][3] & 0xff));
-            interimColumn[1] = (byte) ((interimBlock[i][0] & 0xff) ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ (interimBlock[i][3] & 0xff));
-            interimColumn[2] = (byte) ((interimBlock[i][0] & 0xff) ^ (interimBlock[i][1] & 0xff) ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
-            interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ (interimBlock[i][1] & 0xff) ^ (interimBlock[i][2] & 0xff) ^ mul3[interimBlock[i][3] & 0xff]);
-
             //interimColumn[0] = (byte) (multiply(b2, interimBlock[i][0]) ^ multiply(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
             //interimColumn[1] = (byte) (interimBlock[i][0] ^ multiply(b2,interimBlock[i][1]) ^ multiply(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
             //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ multiply(b2,interimBlock[i][2]) ^ multiply(b3,interimBlock[i][3]));
             //interimColumn[3] = (byte) (multiply(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ multiply(b3,interimBlock[i][3]));
 
+            //interimColumn[0] = (byte) (fMul(b2, interimBlock[i][0]) ^ fMul(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
+            //interimColumn[1] = (byte) (interimBlock[i][0] ^ fMul(b2,interimBlock[i][1]) ^ fMul(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
+            //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ fMul(b2,interimBlock[i][2]) ^ fMul(b3,interimBlock[i][3]));
+            //interimColumn[3] = (byte) (fMul(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ fMul(b3,interimBlock[i][3]));
+
+
+            System.out.println(Arrays.toString(interimColumn));
             for (int j = 0; j < 4; j++) {
                 block[i][j] = interimColumn[j];
+                //block[j][i] = interimColumn[j];
             }
         }
+        System.out.println(Arrays.deepToString(block));
     }
 
     private byte multiply(byte matrixByte, byte messageByte) {
@@ -587,8 +581,24 @@ public class aesAlgorithm {
         return result;
     }
 
+    public  byte fMul(byte a, byte b)
+    {
+        byte aa = a, bb = b, r = 0, t;
+        while (aa != 0)
+        {
+            if ((aa & 1) != 0)
+                r = (byte) (r ^ bb);
+            t = (byte) (bb & 0x20);
+            bb = (byte) (bb << 1);
+            if (t != 0)
+                bb = (byte) (bb ^ 0x1b);
+            aa = (byte) ((aa & 0xff) >> 1);
+        }
+        return r;
+    }
 
-    public byte[] aesDecryption(byte[] messageParam, byte[][] keyParam) {
+
+    public byte[] aesDecryption(byte[] messageParam) {
         byte[] interimMessage = messageParam.clone();
         //System.out.println(Arrays.toString(interimMessage));
 
@@ -611,7 +621,7 @@ public class aesAlgorithm {
             }
             System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
 
-            byte[][] decryptedBlock = decrypt(block, keyParam);
+            byte[][] decryptedBlock = decrypt(block);
             for (int i = 0; i < decryptedBlock.length; i++) {
                 for (int j = 0; j < decryptedBlock[0].length; j++) {
                     plainText[msgIndex++] = decryptedBlock[i][j];
@@ -622,7 +632,7 @@ public class aesAlgorithm {
         return plainText;
     }
 
-    private byte[][] decrypt(byte[][] blockParam, byte[][] keyParam) {
+    private byte[][] decrypt(byte[][] blockParam) {
         byte[][] block = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -635,19 +645,19 @@ public class aesAlgorithm {
         //inv_mixColumns(block);
         //inv_addRoundKey(block, key);
 
-        inv_mixColumns(block);
-        //inv_addRoundKey(block, roundKeys[numberOfRounds]);
+        //inv_mixColumns(block);
+        inv_addRoundKey(block, roundKeys[numberOfRounds]);
 
         for (int i = numberOfRounds-1; i >= 1 ; i--) {
-            //inv_subBytes(block);
-            //inv_shiftRows(block);
-            //inv_addRoundKey(block, roundKeys[i]);
+            inv_subBytes(block);
+            inv_shiftRows(block);
+            inv_addRoundKey(block, roundKeys[i]);
             //inv_mixColumns(block);
         }
 
-        //inv_subBytes(block);
-        //inv_shiftRows(block);
-        //inv_addRoundKey(block, roundKeys[0]);
+        inv_subBytes(block);
+        inv_shiftRows(block);
+        inv_addRoundKey(block, roundKeys[0]);
 
         return block;
     }
@@ -701,18 +711,25 @@ public class aesAlgorithm {
                 interimBlock[i][j] = block[i][j];
             }
         }
+        System.out.println("INVERSE_MIX_COLUMNS:");
+        System.out.println(Arrays.deepToString(interimBlock));
         byte b9 = 0x09, b11 = 0xb, b13 = 0xd, b14 = 0xe;
         for (int i = 0; i < 4; i++) {
-            //
-            //interimColumn[0] = (byte) ((0x0e*interimBlock[i][0]) ^ (0x0b*interimBlock[i][1]) ^ (0x0d*interimBlock[i][2]) ^ (0x09*interimBlock[i][3]));
-            //interimColumn[1] = (byte) ((0x09*interimBlock[i][0]) ^ (0x0e*interimBlock[i][1]) ^ (0x0b*interimBlock[i][2]) ^ (0x0d*interimBlock[i][3]));
-            //interimColumn[2] = (byte) ((0x0d*interimBlock[i][0]) ^ (0x09*interimBlock[i][1]) ^ (0x0e*interimBlock[i][2]) ^ (0x0b*interimBlock[i][3]));
-            //interimColumn[3] = (byte) ((0x0b*interimBlock[i][0]) ^ (0x0d*interimBlock[i][1]) ^ (0x09*interimBlock[i][2]) ^ (0x0e*interimBlock[i][3]));
-
             interimColumn[0] = (byte) (mul14[interimBlock[i][0] & 0xff] ^ mul11[interimBlock[i][1] & 0xff] ^ mul13[interimBlock[i][2] & 0xff] ^ mul9[interimBlock[i][3] & 0xff]);
             interimColumn[1] = (byte) (mul9[interimBlock[i][0] & 0xff] ^ mul14[interimBlock[i][1] & 0xff] ^ mul11[interimBlock[i][2] & 0xff] ^ mul13[interimBlock[i][3] & 0xff]);
             interimColumn[2] = (byte) (mul13[interimBlock[i][0] & 0xff] ^ mul9[interimBlock[i][1] & 0xff] ^ mul14[interimBlock[i][2] & 0xff] ^ mul11[interimBlock[i][3] & 0xff]);
             interimColumn[3] = (byte) (mul11[interimBlock[i][0] & 0xff] ^ mul13[interimBlock[i][1] & 0xff] ^ mul9[interimBlock[i][2] & 0xff] ^ mul14[interimBlock[i][3] & 0xff]);
+
+            //interimColumn[0] = (byte) (mul14[interimBlock[0][i] & 0xff] ^ mul11[interimBlock[1][i] & 0xff] ^ mul13[interimBlock[2][i] & 0xff] ^ mul9[interimBlock[3][i] & 0xff]);
+            //interimColumn[1] = (byte) (mul9[interimBlock[0][i] & 0xff] ^ mul14[interimBlock[1][i] & 0xff] ^ mul11[interimBlock[2][i] & 0xff] ^ mul13[interimBlock[3][i] & 0xff]);
+            //interimColumn[2] = (byte) (mul13[interimBlock[0][i] & 0xff] ^ mul9[interimBlock[1][i] & 0xff] ^ mul14[interimBlock[2][i] & 0xff] ^ mul11[interimBlock[3][i] & 0xff]);
+            //interimColumn[3] = (byte) (mul11[interimBlock[0][i] & 0xff] ^ mul13[interimBlock[1][i] & 0xff] ^ mul9[interimBlock[2][i] & 0xff] ^ mul14[interimBlock[3][i] & 0xff]);
+
+
+            //interimColumn[0] = (byte) ((0x0e*interimBlock[i][0]) ^ (0x0b*interimBlock[i][1]) ^ (0x0d*interimBlock[i][2]) ^ (0x09*interimBlock[i][3]));
+            //interimColumn[1] = (byte) ((0x09*interimBlock[i][0]) ^ (0x0e*interimBlock[i][1]) ^ (0x0b*interimBlock[i][2]) ^ (0x0d*interimBlock[i][3]));
+            //interimColumn[2] = (byte) ((0x0d*interimBlock[i][0]) ^ (0x09*interimBlock[i][1]) ^ (0x0e*interimBlock[i][2]) ^ (0x0b*interimBlock[i][3]));
+            //interimColumn[3] = (byte) ((0x0b*interimBlock[i][0]) ^ (0x0d*interimBlock[i][1]) ^ (0x09*interimBlock[i][2]) ^ (0x0e*interimBlock[i][3]));
 
             //interimColumn[0] = (byte) (reversedMul2[interimBlock[i][0] & 0xff] ^ reversedMul3[interimBlock[i][1] & 0xff] ^ (interimBlock[i][2] & 0xff) ^ (interimBlock[i][3] & 0xff));
             //interimColumn[1] = (byte) ((interimBlock[i][0] & 0xff) ^ reversedMul2[interimBlock[i][1] & 0xff] ^ reversedMul3[interimBlock[i][2] & 0xff] ^ (interimBlock[i][3] & 0xff));
@@ -728,10 +745,23 @@ public class aesAlgorithm {
             //interimColumn[3] = (byte) (multiply(b11, interimBlock[i][0]) ^ multiply(b13, interimBlock[i][1])
             //        ^ multiply(b9, interimBlock[i][2]) ^ multiply(b14, interimBlock[i][3]));
 
+            //interimColumn[0] = (byte) (fMul(b14, interimBlock[i][0]) ^ fMul(b11, interimBlock[i][1])
+            //        ^ fMul(b13, interimBlock[i][2]) ^ fMul(b9, interimBlock[i][3]));
+            //interimColumn[1] = (byte) (fMul(b9, interimBlock[i][0]) ^ fMul(b14, interimBlock[i][1])
+            //        ^ fMul(b11, interimBlock[i][2]) ^ fMul(b13, interimBlock[i][3]));
+            //interimColumn[2] = (byte) (fMul(b13, interimBlock[i][0]) ^ fMul(b9, interimBlock[i][1])
+            //        ^ fMul(b14, interimBlock[i][2]) ^ fMul(b11, interimBlock[i][3]));
+            //interimColumn[3] = (byte) (fMul(b11, interimBlock[i][0]) ^ fMul(b13, interimBlock[i][1])
+            //        ^ fMul(b9, interimBlock[i][2]) ^ fMul(b14, interimBlock[i][3]));
+
+
+            System.out.println(Arrays.toString(interimColumn));
             for (int j = 0; j < 4; j++) {
                 block[i][j] = interimColumn[j];
+                //block[j][i] = interimColumn[j];
             }
         }
+        System.out.println(Arrays.deepToString(block));
     }
 
     private String byteToHex(byte b) {
