@@ -17,13 +17,13 @@
         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="klucz" />
         <HBox prefHeight="13.0" prefWidth="262.0">
             <children>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wartosc klucza heksadecymalnego" wrappingWidth="292.536678314209" />
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" wygeneruj wartosc klucza" wrappingWidth="166.93676590919495" />
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wartosc klucza heksadecymalnego" wrappingWidth="550.1367149353027" />
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" wygeneruj wartosc klucza" wrappingWidth="150.13677787780762" />
             </children>
         </HBox>
         <HBox prefHeight="29.0" prefWidth="710.0">
             <children>
-                <TextField fx:id="keyField" editable="false" prefHeight="26.0" prefWidth="240.0">
+                <TextField fx:id="keyField" editable="false" prefHeight="26.0" prefWidth="489.0">
                     <HBox.margin>
                         <Insets />
                     </HBox.margin>
