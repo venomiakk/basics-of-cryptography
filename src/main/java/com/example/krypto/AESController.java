@@ -108,8 +108,7 @@ public class AESController implements Initializable {
     private byte[] cipher;
     private byte[] plainText;
 
-    String plainStr="";
-
+    String cipherStr="";
     @FXML
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
         System.out.println("generuje klucz");
@@ -142,16 +141,7 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onsaveCipherButtonClick() {
-        final Path path = Path.of(saveCipherField.getText());
-
-        try (
-                final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-        ) {
-            writer.write(Arrays.toString(plainText));
-            writer.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("zapisujesz szyfr");
 
     }
 
@@ -201,7 +191,16 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onopenCipherButtonClick() {
-        System.out.println("otwierasz plik z szyfrem");
+        final Path path = Path.of(saveCipherField.getText());
+
+        try (
+                final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+        ) {
+            writer.write(cipherStr);
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -224,8 +223,9 @@ public class AESController implements Initializable {
         if (textRadio.isSelected()){
             aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
             cipher = AES.aesEncryption(text.getBytes());
-            String cipherStr = new String(bytesToHex(cipher));
+            cipherStr = new String(bytesToHex(cipher));
             cipherArea.textProperty().setValue(cipherStr);
+            System.out.println(cipherStr);
         } else {
         //    TODO: PLIK
         }
@@ -242,7 +242,7 @@ public class AESController implements Initializable {
             if (cipher.length != 0){
                 aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
                 plainText = AES.aesDecryption(cipher);
-                plainStr = new String(plainText);
+                String plainStr = new String(plainText);
                 textArea.textProperty().setValue(plainStr);
                 System.out.println(Arrays.toString(plainText));
                 System.out.println(plainStr);
