@@ -115,11 +115,11 @@ public class AESController implements Initializable {
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < 4; j++) {
                 key[i][j] = (byte) rand.nextInt(0x10);
-                hexKey.append(String.format("%02x", Byte.parseByte(String.valueOf(key[i][j]))));
+                hexKey.append(String.format("%2x", Byte.parseByte(String.valueOf(key[i][j]))));
             }
         }
-        keyField.textProperty().setValue(hexKey.toString());
-        System.out.println(Arrays.deepToString(key));
+        keyField.textProperty().setValue(hexKey.toString().replaceAll("\\s", ""));
+        //System.out.println(Arrays.deepToString(new StringBuilder[]{hexKey}));
 
     }
 
