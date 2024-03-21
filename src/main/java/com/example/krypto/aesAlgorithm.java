@@ -223,26 +223,14 @@ public class aesAlgorithm {
 
     private byte[][][] roundKeys;
     private int numberOfRounds;
-    private byte[] msgBytes;
 
 
     public aesAlgorithm(byte[][] key, int roundsNum) {
         numberOfRounds = roundsNum;
 
-        //System.out.println(Arrays.toString(message.getBytes()));
-        //System.out.println(key.length);
-        //Divide message on 16 byte blocks
-        //System.out.println(key[1][3]);
-        //TODO: trzeba wczytywać odrazu do bajtów(?) aby plik i tekst działał tak samo
-        //TODO: zaimplementować wybór długości klucza
-        //TODO: Pobrać klucz i zrobić z niego blok
-        //System.out.println(Arrays.deepToString(key));
-        //System.out.println(key[3][0]);
-
-        //TODO: Dostosować do zmiennej długości klucza
         roundKeys = new byte[numberOfRounds+1][4][4];
         byte[][] tmpKey = keyExpansion(key, 1);
-        //System.out.println(Arrays.deepToString(tmpKey));
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 roundKeys[0][i][j] = tmpKey[i][j];
@@ -256,37 +244,11 @@ public class aesAlgorithm {
                     roundKeys[i][j][k] = tmpKey[j][k];
                 }
             }
-            //System.out.println("klucz przed: " + Arrays.deepToString(roundKeys[i-1]));
-            //System.out.println("Klucz po: " + Arrays.deepToString(tmpKey));
         }
-
-        //System.out.println(Arrays.deepToString(roundKeys));
-        //String messageStr = "abcde";
-        //byte[] message = messageStr.getBytes();
-        //System.out.println("Szyfrowanie:");
-        ////byte[] messageBytes = message.getBytes(/*StandardCharsets.UTF_8*/);
-        //byte[] cipher = aesEncryption(message);
-        //System.out.println("Zaszyfrowane: " + Arrays.toString(cipher));
-        //
-        //System.out.println("Deszyfrowanie:");
-        //byte[] plainBytes = aesDecryption(cipher);
-        //System.out.println("Zdeszyfrowane: " + Arrays.toString(plainBytes));
-
-
-        //byte[] a = message.getBytes();
-        //System.out.println(Arrays.toString(a));
-        //String b = new String(a);
-        //System.out.println(b);
     }
 
-    /*
-     *   @params:
-     *       messageParam - bytes
-     *       key - hex converted to bytes
-     */
+
     public byte[] aesEncryption(byte[] messageParam) {
-        //TODO można zapisać długość dodanych zer aby przy dekodowaniu móc ją obciąć
-        //TODO ostatni bajt może pełnić taką role
         byte[] interimMessage = messageParam.clone();
 
         //Fit length of the message
@@ -320,11 +282,6 @@ public class aesAlgorithm {
             }
         }
 
-        //System.out.println(Arrays.toString(formattedMessage));
-
-        //System.out.println(desiredLen);
-        int numberOfBlocks = desiredLen / 16;
-
         //Divide to blocks 4x4
         byte[] cipher = new byte[desiredLen];
         int msgIndex = 0;
@@ -333,7 +290,6 @@ public class aesAlgorithm {
         while (index < desiredLen) {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    //block[i][j] = byteToHex(formattedMessage[index]);
                     block[i][j] = formattedMessage[index];
                     index++;
                 }
@@ -341,7 +297,6 @@ public class aesAlgorithm {
             System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
 
             byte[][] encryptedBlock = encrypt(block);
-            //System.out.println(Arrays.deepToString(encryptedBlock));
 
             for (int i = 0; i < encryptedBlock.length; i++) {
                 for (int j = 0; j < encryptedBlock[0].length; j++) {
@@ -371,73 +326,35 @@ public class aesAlgorithm {
          *       3. addRoundKey
          */
 
-        //String[] hexBlock = new String[16];
-        //for (int i = 0; i < 16; i++){
-        //    hexBlock[i] = byteToHex(block[i]);
-        //}
-        //System.out.println(Arrays.toString(hexBlock));
-        //
-
-        //Carefully about shallow copy!
         byte[][] block = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 block[i][j] = blockParam[i][j];
             }
         }
-        //subBytes(block);
-        //System.out.println("subBytes: " + Arrays.deepToString(block));
-        //shiftRows(block);
-        //System.out.println("shiftRows: " + Arrays.deepToString(block));
-        //addRoundKey(block, key);
-        //System.out.println("addRoundKey: " + Arrays.deepToString(block));
-        //mixColumns(block);
-        //System.out.println("mixColumns: " + Arrays.deepToString(block));
-        //keyExpansion();
-        //System.out.println("keyExpansion: " + Arrays.deepToString(block));
-        //System.out.println("Initial round: 1");
-
-        //addRoundKey(block, key);
-
-        //TEMPORARY BLOCK COPY:
-        //int k  = 0;
-        //for (int i = 0; i < 4; i++) {
-        //    for (int j = 0; j < 4; j++) {
-        //        interimBlock[k++] = block[i][j];
-        //    }
-        //}
-        //System.out.println("Zaszyfrowany: " + Arrays.toString(interimBlock));
-
-        //mixColumns(block);
-        //System.out.println("MixColumns: "+Arrays.deepToString(block));
-        //inv_mixColumns(block);
-        //System.out.println("invMixColumns: " + Arrays.deepToString(block));
-
-       mixColumns(block);
 
         //TODO: START OF ENCRYPTION
         //INITIAL ROUND
-        //addRoundKey(block, roundKeys[0]);
-        //
-        //for (int i = 1; i < numberOfRounds; i++) {
-        //    //System.out.println(i);
-        //    subBytes(block);
-        //    shiftRows(block);
-        //    mixColumns(block);
-        //    addRoundKey(block, roundKeys[i]);
-        //}
-        //
-        ////System.out.println("Last round: 10");
-        //subBytes(block);
-        //shiftRows(block);
-        //addRoundKey(block, roundKeys[numberOfRounds]);
+        addRoundKey(block, roundKeys[0]);
+
+        for (int i = 1; i < numberOfRounds; i++) {
+            subBytes(block);
+            shiftRows(block);
+            //mixColumns(block);
+            block = mixColumns2(block);
+            addRoundKey(block, roundKeys[i]);
+        }
+
+        //LAST ROUND
+        subBytes(block);
+        shiftRows(block);
+        addRoundKey(block, roundKeys[numberOfRounds]);
 
         return block;
     }
 
 
     private byte[][] keyExpansion(byte[][] roundKey, int round) {
-    //TODO keyExpansion: Zapisywać klucze aby móc z nich skorzystać przy deszyfrowaniu
         byte[][] currentKey = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -470,10 +387,6 @@ public class aesAlgorithm {
     }
 
     private void addRoundKey(byte[][] block, byte[][] roundKey) {
-        //System.out.println(Arrays.deepToString(block));
-        //System.out.println(Arrays.deepToString(roundKey));
-        //TODO chyba trzeba to inaczej
-        //TODO addRoundKey: Trzeba uwzględnić długość klucza?
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 block[i][j] ^= roundKey[i][j];
@@ -482,7 +395,6 @@ public class aesAlgorithm {
     }
 
     private void shiftRows(byte[][] block) {
-        //Shoud there be some kind of loop?
         byte[][] interim = new byte[4][4];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -515,7 +427,6 @@ public class aesAlgorithm {
                 block[i][j] = (byte) sbox[block[i][j] & 0xff];
             }
         }
-        //Are negative numbers correct?
     }
 
     private void mixColumns(byte[][] block) {
@@ -607,7 +518,6 @@ public class aesAlgorithm {
 
     public byte[] aesDecryption(byte[] messageParam) {
         byte[] interimMessage = messageParam.clone();
-        //System.out.println(Arrays.toString(interimMessage));
 
         //TODO: Jakieś exception
         if (interimMessage.length % 16 != 0){
@@ -657,29 +567,23 @@ public class aesAlgorithm {
                 block[i][j] = blockParam[i][j];
             }
         }
-        //inv_subBytes(block);
-        //inv_shiftRows(block);
-        //inv_addRoundKey(block, keyParam);
-        //inv_mixColumns(block);
-        //inv_addRoundKey(block, key);
-
-        inv_mixColumns(block);
 
         //TODO: START OF DECRYPTION
         //INITIAL ROUND
-        //addRoundKey(block, roundKeys[numberOfRounds]);
-        //
-        //for (int i = numberOfRounds-1; i >= 1 ; i--) {
-        //    inv_subBytes(block);
-        //    inv_shiftRows(block);
-        //    addRoundKey(block, roundKeys[i]);
-        //    inv_mixColumns(block);
-        //}
-        //
-        ////LAST ROUND
-        //inv_subBytes(block);
-        //inv_shiftRows(block);
-        //inv_addRoundKey(block, roundKeys[0]);
+        addRoundKey(block, roundKeys[numberOfRounds]);
+
+        for (int i = numberOfRounds-1; i >= 1 ; i--) {
+            inv_subBytes(block);
+            inv_shiftRows(block);
+            addRoundKey(block, roundKeys[i]);
+            //inv_mixColumns(block);
+            block = invMixColumns2(block);
+        }
+
+        //LAST ROUND
+        inv_subBytes(block);
+        inv_shiftRows(block);
+        inv_addRoundKey(block, roundKeys[0]);
 
         return block;
     }
@@ -786,23 +690,33 @@ public class aesAlgorithm {
         System.out.println(Arrays.deepToString(block));
     }
 
-    private String byteToHex(byte b) {
-        return String.format("%02x", Byte.parseByte(String.valueOf(b)));
-    }
-
-    //https://www.baeldung.com/java-byte-arrays-hex-strings
-    private byte hexToByte(String hexString) {
-        int firstDigit = toDigit(hexString.charAt(0));
-        int secondDigit = toDigit(hexString.charAt(1));
-        return (byte) ((firstDigit << 4) + secondDigit);
-    }
-
-    private int toDigit(char hexChar) {
-        int digit = Character.digit(hexChar, 16);
-        if (digit == -1) {
-            throw new IllegalArgumentException(
-                    "Invalid Hexadecimal Character: " + hexChar);
+    private  byte[][] invMixColumns2(byte[][] s)
+    {
+        int[] sp = new int[4];
+        byte b02 = (byte)0x0e, b03 = (byte)0x0b, b04 = (byte)0x0d, b05 = (byte)0x09;
+        for (int c = 0; c < 4; c++)
+        {
+            sp[0] = fMul(b02, s[0][c]) ^ fMul(b03, s[1][c]) ^ fMul(b04,s[2][c])  ^ fMul(b05,s[3][c]);
+            sp[1] = fMul(b05, s[0][c]) ^ fMul(b02, s[1][c]) ^ fMul(b03,s[2][c])  ^ fMul(b04,s[3][c]);
+            sp[2] = fMul(b04, s[0][c]) ^ fMul(b05, s[1][c]) ^ fMul(b02,s[2][c])  ^ fMul(b03,s[3][c]);
+            sp[3] = fMul(b03, s[0][c]) ^ fMul(b04, s[1][c]) ^ fMul(b05,s[2][c])  ^ fMul(b02,s[3][c]);
+            for (int i = 0; i < 4; i++) s[i][c] = (byte)(sp[i]);
         }
-        return digit;
+        return s;
+    }
+
+    private  byte[][] mixColumns2(byte[][] s)
+    {
+        int[] sp = new int[4];
+        byte b02 = (byte)0x02, b03 = (byte)0x03;
+        for (int c = 0; c < 4; c++)
+        {
+            sp[0] = fMul(b02, s[0][c]) ^ fMul(b03, s[1][c]) ^ s[2][c]  ^ s[3][c];
+            sp[1] = s[0][c]  ^ fMul(b02, s[1][c]) ^ fMul(b03, s[2][c]) ^ s[3][c];
+            sp[2] = s[0][c]  ^ s[1][c]  ^ fMul(b02, s[2][c]) ^ fMul(b03, s[3][c]);
+            sp[3] = fMul(b03, s[0][c]) ^ s[1][c]  ^ s[2][c]  ^ fMul(b02, s[3][c]);
+            for (int i = 0; i < 4; i++) s[i][c] = (byte)(sp[i]);
+        }
+        return s;
     }
 }
