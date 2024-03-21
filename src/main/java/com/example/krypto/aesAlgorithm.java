@@ -338,7 +338,7 @@ public class aesAlgorithm {
                     index++;
                 }
             }
-            //System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
+            System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
 
             byte[][] encryptedBlock = encrypt(block);
             //System.out.println(Arrays.deepToString(encryptedBlock));
@@ -349,7 +349,8 @@ public class aesAlgorithm {
                 }
             }
         }
-        //System.out.println(cipher.length);
+        System.out.println("Zaszyfrowany blok:");
+        System.out.println(Arrays.toString(cipher));
         return cipher;
     }
 
@@ -412,21 +413,24 @@ public class aesAlgorithm {
         //inv_mixColumns(block);
         //System.out.println("invMixColumns: " + Arrays.deepToString(block));
 
+       mixColumns(block);
+
+        //TODO: START OF ENCRYPTION
         //INITIAL ROUND
-        addRoundKey(block, roundKeys[0]);
-
-        for (int i = 1; i < numberOfRounds; i++) {
-            //System.out.println(i);
-            subBytes(block);
-            shiftRows(block);
-            //mixColumns(block);
-            addRoundKey(block, roundKeys[i]);
-        }
-
-        //System.out.println("Last round: 10");
-        subBytes(block);
-        shiftRows(block);
-        addRoundKey(block, roundKeys[numberOfRounds]);
+        //addRoundKey(block, roundKeys[0]);
+        //
+        //for (int i = 1; i < numberOfRounds; i++) {
+        //    //System.out.println(i);
+        //    subBytes(block);
+        //    shiftRows(block);
+        //    mixColumns(block);
+        //    addRoundKey(block, roundKeys[i]);
+        //}
+        //
+        ////System.out.println("Last round: 10");
+        //subBytes(block);
+        //shiftRows(block);
+        //addRoundKey(block, roundKeys[numberOfRounds]);
 
         return block;
     }
@@ -526,10 +530,10 @@ public class aesAlgorithm {
         System.out.println(Arrays.deepToString(interimBlock));
         byte b2 = 0x02, b3 = 0x03;
         for (int i = 0; i < 4; i++) {
-            interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ (interimBlock[i][2] & 0xff) ^ (interimBlock[i][3] & 0xff));
-            interimColumn[1] = (byte) ((interimBlock[i][0] & 0xff) ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ (interimBlock[i][3] & 0xff));
-            interimColumn[2] = (byte) ((interimBlock[i][0] & 0xff) ^ (interimBlock[i][1] & 0xff) ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
-            interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ (interimBlock[i][1] & 0xff) ^ (interimBlock[i][2] & 0xff) ^ mul3[interimBlock[i][3] & 0xff]);
+            //interimColumn[0] = (byte) (mul2[interimBlock[i][0] & 0xff] ^ mul3[interimBlock[i][1] & 0xff] ^ (interimBlock[i][2] & 0xff) ^ (interimBlock[i][3] & 0xff));
+            //interimColumn[1] = (byte) ((interimBlock[i][0] & 0xff) ^ mul2[interimBlock[i][1] & 0xff] ^ mul3[interimBlock[i][2] & 0xff] ^ (interimBlock[i][3] & 0xff));
+            //interimColumn[2] = (byte) ((interimBlock[i][0] & 0xff) ^ (interimBlock[i][1] & 0xff) ^ mul2[interimBlock[i][2] & 0xff] ^ mul3[interimBlock[i][3] & 0xff]);
+            //interimColumn[3] = (byte) (mul3[interimBlock[i][0] & 0xff] ^ (interimBlock[i][1] & 0xff) ^ (interimBlock[i][2] & 0xff) ^ mul3[interimBlock[i][3] & 0xff]);
 
             //interimColumn[0] = (byte) (mul2[interimBlock[0][i] & 0xff] ^ mul3[interimBlock[1][i] & 0xff] ^ (interimBlock[2][i] & 0xff) ^ (interimBlock[3][i] & 0xff));
             //interimColumn[1] = (byte) ((interimBlock[0][i] & 0xff) ^ mul2[interimBlock[1][i] & 0xff] ^ mul3[interimBlock[2][i] & 0xff] ^ (interimBlock[3][i] & 0xff));
@@ -552,10 +556,10 @@ public class aesAlgorithm {
             //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ multiply(b2,interimBlock[i][2]) ^ multiply(b3,interimBlock[i][3]));
             //interimColumn[3] = (byte) (multiply(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ multiply(b3,interimBlock[i][3]));
 
-            //interimColumn[0] = (byte) (fMul(b2, interimBlock[i][0]) ^ fMul(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
-            //interimColumn[1] = (byte) (interimBlock[i][0] ^ fMul(b2,interimBlock[i][1]) ^ fMul(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
-            //interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ fMul(b2,interimBlock[i][2]) ^ fMul(b3,interimBlock[i][3]));
-            //interimColumn[3] = (byte) (fMul(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ fMul(b3,interimBlock[i][3]));
+            interimColumn[0] = (byte) (fMul(b2, interimBlock[i][0]) ^ fMul(b3,interimBlock[i][1]) ^ interimBlock[i][2] ^ interimBlock[i][3]);
+            interimColumn[1] = (byte) (interimBlock[i][0] ^ fMul(b2,interimBlock[i][1]) ^ fMul(b3,interimBlock[i][2]) ^ interimBlock[i][3]);
+            interimColumn[2] = (byte) (interimBlock[i][0] ^ interimBlock[i][1] ^ fMul(b2,interimBlock[i][2]) ^ fMul(b3,interimBlock[i][3]));
+            interimColumn[3] = (byte) (fMul(b3,interimBlock[i][0]) ^ interimBlock[i][1] ^ interimBlock[i][2] ^ fMul(b3,interimBlock[i][3]));
 
 
             System.out.println(Arrays.toString(interimColumn));
@@ -622,7 +626,7 @@ public class aesAlgorithm {
                     index++;
                 }
             }
-            //System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
+            System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
 
             byte[][] decryptedBlock = decrypt(block);
             for (int i = 0; i < decryptedBlock.length; i++) {
@@ -640,7 +644,9 @@ public class aesAlgorithm {
         for (int i = 0; i < output.length; i++) {
             output[i] = plainText[i];
         }
-        //System.out.println(output.length);
+
+        System.out.println("Zdeszyfrowany blok:");
+        System.out.println(Arrays.toString(output));
         return output;
     }
 
@@ -657,19 +663,23 @@ public class aesAlgorithm {
         //inv_mixColumns(block);
         //inv_addRoundKey(block, key);
 
-        //inv_mixColumns(block);
-        inv_addRoundKey(block, roundKeys[numberOfRounds]);
+        inv_mixColumns(block);
 
-        for (int i = numberOfRounds-1; i >= 1 ; i--) {
-            inv_subBytes(block);
-            inv_shiftRows(block);
-            inv_addRoundKey(block, roundKeys[i]);
-            //inv_mixColumns(block);
-        }
-
-        inv_subBytes(block);
-        inv_shiftRows(block);
-        inv_addRoundKey(block, roundKeys[0]);
+        //TODO: START OF DECRYPTION
+        //INITIAL ROUND
+        //addRoundKey(block, roundKeys[numberOfRounds]);
+        //
+        //for (int i = numberOfRounds-1; i >= 1 ; i--) {
+        //    inv_subBytes(block);
+        //    inv_shiftRows(block);
+        //    addRoundKey(block, roundKeys[i]);
+        //    inv_mixColumns(block);
+        //}
+        //
+        ////LAST ROUND
+        //inv_subBytes(block);
+        //inv_shiftRows(block);
+        //inv_addRoundKey(block, roundKeys[0]);
 
         return block;
     }
@@ -727,10 +737,10 @@ public class aesAlgorithm {
         System.out.println(Arrays.deepToString(interimBlock));
         byte b9 = 0x09, b11 = 0xb, b13 = 0xd, b14 = 0xe;
         for (int i = 0; i < 4; i++) {
-            interimColumn[0] = (byte) (mul14[interimBlock[i][0] & 0xff] ^ mul11[interimBlock[i][1] & 0xff] ^ mul13[interimBlock[i][2] & 0xff] ^ mul9[interimBlock[i][3] & 0xff]);
-            interimColumn[1] = (byte) (mul9[interimBlock[i][0] & 0xff] ^ mul14[interimBlock[i][1] & 0xff] ^ mul11[interimBlock[i][2] & 0xff] ^ mul13[interimBlock[i][3] & 0xff]);
-            interimColumn[2] = (byte) (mul13[interimBlock[i][0] & 0xff] ^ mul9[interimBlock[i][1] & 0xff] ^ mul14[interimBlock[i][2] & 0xff] ^ mul11[interimBlock[i][3] & 0xff]);
-            interimColumn[3] = (byte) (mul11[interimBlock[i][0] & 0xff] ^ mul13[interimBlock[i][1] & 0xff] ^ mul9[interimBlock[i][2] & 0xff] ^ mul14[interimBlock[i][3] & 0xff]);
+            //interimColumn[0] = (byte) (mul14[interimBlock[i][0] & 0xff] ^ mul11[interimBlock[i][1] & 0xff] ^ mul13[interimBlock[i][2] & 0xff] ^ mul9[interimBlock[i][3] & 0xff]);
+            //interimColumn[1] = (byte) (mul9[interimBlock[i][0] & 0xff] ^ mul14[interimBlock[i][1] & 0xff] ^ mul11[interimBlock[i][2] & 0xff] ^ mul13[interimBlock[i][3] & 0xff]);
+            //interimColumn[2] = (byte) (mul13[interimBlock[i][0] & 0xff] ^ mul9[interimBlock[i][1] & 0xff] ^ mul14[interimBlock[i][2] & 0xff] ^ mul11[interimBlock[i][3] & 0xff]);
+            //interimColumn[3] = (byte) (mul11[interimBlock[i][0] & 0xff] ^ mul13[interimBlock[i][1] & 0xff] ^ mul9[interimBlock[i][2] & 0xff] ^ mul14[interimBlock[i][3] & 0xff]);
 
             //interimColumn[0] = (byte) (mul14[interimBlock[0][i] & 0xff] ^ mul11[interimBlock[1][i] & 0xff] ^ mul13[interimBlock[2][i] & 0xff] ^ mul9[interimBlock[3][i] & 0xff]);
             //interimColumn[1] = (byte) (mul9[interimBlock[0][i] & 0xff] ^ mul14[interimBlock[1][i] & 0xff] ^ mul11[interimBlock[2][i] & 0xff] ^ mul13[interimBlock[3][i] & 0xff]);
@@ -757,14 +767,14 @@ public class aesAlgorithm {
             //interimColumn[3] = (byte) (multiply(b11, interimBlock[i][0]) ^ multiply(b13, interimBlock[i][1])
             //        ^ multiply(b9, interimBlock[i][2]) ^ multiply(b14, interimBlock[i][3]));
 
-            //interimColumn[0] = (byte) (fMul(b14, interimBlock[i][0]) ^ fMul(b11, interimBlock[i][1])
-            //        ^ fMul(b13, interimBlock[i][2]) ^ fMul(b9, interimBlock[i][3]));
-            //interimColumn[1] = (byte) (fMul(b9, interimBlock[i][0]) ^ fMul(b14, interimBlock[i][1])
-            //        ^ fMul(b11, interimBlock[i][2]) ^ fMul(b13, interimBlock[i][3]));
-            //interimColumn[2] = (byte) (fMul(b13, interimBlock[i][0]) ^ fMul(b9, interimBlock[i][1])
-            //        ^ fMul(b14, interimBlock[i][2]) ^ fMul(b11, interimBlock[i][3]));
-            //interimColumn[3] = (byte) (fMul(b11, interimBlock[i][0]) ^ fMul(b13, interimBlock[i][1])
-            //        ^ fMul(b9, interimBlock[i][2]) ^ fMul(b14, interimBlock[i][3]));
+            interimColumn[0] = (byte) (fMul(b14, interimBlock[i][0]) ^ fMul(b11, interimBlock[i][1])
+                    ^ fMul(b13, interimBlock[i][2]) ^ fMul(b9, interimBlock[i][3]));
+            interimColumn[1] = (byte) (fMul(b9, interimBlock[i][0]) ^ fMul(b14, interimBlock[i][1])
+                    ^ fMul(b11, interimBlock[i][2]) ^ fMul(b13, interimBlock[i][3]));
+            interimColumn[2] = (byte) (fMul(b13, interimBlock[i][0]) ^ fMul(b9, interimBlock[i][1])
+                    ^ fMul(b14, interimBlock[i][2]) ^ fMul(b11, interimBlock[i][3]));
+            interimColumn[3] = (byte) (fMul(b11, interimBlock[i][0]) ^ fMul(b13, interimBlock[i][1])
+                    ^ fMul(b9, interimBlock[i][2]) ^ fMul(b14, interimBlock[i][3]));
 
 
             System.out.println(Arrays.toString(interimColumn));

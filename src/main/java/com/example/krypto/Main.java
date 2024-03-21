@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) throws UnsupportedEncodingException {
-        String messageStr = "abcde";
+        String messageStr = "abcdefg";
         byte[] message = messageStr.getBytes();
 
         /*
@@ -22,6 +22,7 @@ public class Main {
 
 
         aesAlgorithm AES = new aesAlgorithm(key, 10);
+        AES.aesDecryption(AES.aesEncryption(message));
 
     }
 
