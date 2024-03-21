@@ -13,10 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.BreakIterator;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 
 public class AESController implements Initializable {
     @FXML
@@ -62,7 +59,7 @@ public class AESController implements Initializable {
     private TextField openCipherFileField;
 
     @FXML
-    private TextField saveTextFie;
+    private TextField saveTextField;
 
     @FXML
     private TextField saveCipherField;
@@ -92,9 +89,8 @@ public class AESController implements Initializable {
 
     private Path path;
 
-    int[] fileBytes;
 
-    String text="";
+
 
     private byte[][] key = {
             {0x0, 0x1, 0x2, 0x3},
@@ -103,12 +99,10 @@ public class AESController implements Initializable {
             {0xc, 0xd, 0xe, 0xf}
     };
     private int numberOfRounds = 10;
-    private byte[] bytes;
 
     private byte[] cipher;
-    private byte[] plainText;
+    private ArrayList<byte> plainText = new ArrayList<byte>();
 
-    String cipherStr="";
     @FXML
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
         System.out.println("generuje klucz");
@@ -141,13 +135,34 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onsaveCipherButtonClick() {
-        System.out.println("zapisujesz szyfr");
+        final Path path = Path.of(saveCipherField.getText());
+
+        try (
+                final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+        ) {
+            writer.write(Arrays.toString(cipher));
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     @FXML
     protected void onsaveTextButtonClick() {
-        System.out.println("zapisujesz tekst");
+        final Path path = Path.of(saveTextField.getText());
+
+        try (
+                final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+        ) {
+            for (int i = 0; i < plainText.size() ; i++) {
+                writer.write(plainText.get(i));
+            }
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 
@@ -160,6 +175,7 @@ public class AESController implements Initializable {
             byte dane=0;
             path = file.toPath();
             textNameField.setText(path.toString());
+            String text = "";
             try
             {
                 FileInputStream plik = new FileInputStream(path.toFile());
@@ -191,16 +207,7 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onopenCipherButtonClick() {
-        final Path path = Path.of(saveCipherField.getText());
-
-        try (
-                final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE);
-        ) {
-            writer.write(cipherStr);
-            writer.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("otwierasz plik z szyfrem");
 
     }
 
@@ -219,17 +226,22 @@ public class AESController implements Initializable {
     @FXML
     protected void onencipherButtonClick() {
         System.out.println("szufrun");
-
+        plainText = new ArrayList<byte>();
         if (textRadio.isSelected()){
-            aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
-            cipher = AES.aesEncryption(text.getBytes());
-            cipherStr = new String(bytesToHex(cipher));
-            cipherArea.textProperty().setValue(cipherStr);
-            System.out.println(cipherStr);
-        } else {
-        //    TODO: PLIK
-        }
+            for (int i = 0; i < textArea.getText().getBytes().length; i++) {
+                plainText.add(textArea.getText().getBytes()[i]) ;
+            }
 
+        }
+        aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
+        byte[] interim = new byte[plainText.size()];
+        for (int i = 0; i < plainText.size(); i++) {
+            interim[i] = plainText.get(i);
+        }
+        cipher = AES.aesEncryption(interim);
+        String cipherStr = new String(bytesToHex(cipher));
+        cipherArea.textProperty().setValue(cipherStr);
+        System.out.println(cipherStr);
 
 
     }
@@ -241,11 +253,14 @@ public class AESController implements Initializable {
         if (textRadio.isSelected()){
             if (cipher.length != 0){
                 aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
-                plainText = AES.aesDecryption(cipher);
-                String plainStr = new String(plainText);
+                byte[] interim = AES.aesDecryption(cipher);
+                String plainStr = new String(interim);
                 textArea.textProperty().setValue(plainStr);
-                System.out.println(Arrays.toString(plainText));
-                System.out.println(plainStr);
+                plainText = new ArrayList<byte>();
+                for (int i = 0; i < interim.length; i++) {
+                    plainText.add(interim[i]);
+                }
+
             }
         } else {
             //    TODO: PLIK

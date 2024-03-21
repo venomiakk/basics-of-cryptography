@@ -23,7 +23,7 @@
         </HBox>
         <HBox prefHeight="29.0" prefWidth="710.0">
             <children>
-                <TextField fx:id="keyField" editable="false" prefHeight="26.0" prefWidth="489.0">
+                <TextField fx:id="keyField" prefHeight="26.0" prefWidth="489.0">
                     <HBox.margin>
                         <Insets />
                     </HBox.margin>
