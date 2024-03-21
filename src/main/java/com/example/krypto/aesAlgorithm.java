@@ -313,6 +313,8 @@ public class aesAlgorithm {
                 numOfZeros++;
             }
             //TODO coś z tym określaniem dodanych 0 trzeba zrobić ale inaczej chyba
+            //Spróbować po zaszyfrowaniu usuwać dodane bajty a przy deszyfrowaniu doppisywać i potem usuwać
+            //W tym momencie przy deszyforwaniu jak nie dodamy nic to chyba sie wywali
             if (numOfZeros!=0){
                 formattedMessage[formattedMessage.length-1] = (byte) numOfZeros;
             }
@@ -336,7 +338,7 @@ public class aesAlgorithm {
                     index++;
                 }
             }
-            System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
+            //System.out.println("Blok do zaszyfrowania: " + Arrays.deepToString(block));
 
             byte[][] encryptedBlock = encrypt(block);
             //System.out.println(Arrays.deepToString(encryptedBlock));
@@ -347,6 +349,7 @@ public class aesAlgorithm {
                 }
             }
         }
+        //System.out.println(cipher.length);
         return cipher;
     }
 
@@ -619,7 +622,7 @@ public class aesAlgorithm {
                     index++;
                 }
             }
-            System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
+            //System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
 
             byte[][] decryptedBlock = decrypt(block);
             for (int i = 0; i < decryptedBlock.length; i++) {
@@ -631,11 +634,13 @@ public class aesAlgorithm {
         }
 
         //TODO: Nwm czy nie będzie to przedszkadzało plikom
+        //TO napewno popsuje pliki
         int numOfZeros = plainText[plainText.length-1];
         byte[] output = new byte[plainText.length-numOfZeros];
         for (int i = 0; i < output.length; i++) {
             output[i] = plainText[i];
         }
+        //System.out.println(output.length);
         return output;
     }
 

@@ -3,13 +3,17 @@ package com.example.krypto;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.ResourceBundle;
+import javax.xml.bind.DatatypeConverter;
 
 public class AESController implements Initializable {
     @FXML
@@ -98,7 +102,7 @@ public class AESController implements Initializable {
         System.out.println("generuje klucz");
         Random rand = new Random();
         int len = 4;
-        if (bit256Radio.isSelected()){
+        if (bit256Radio.isSelected()) {
             System.out.println("256");
             len = 8;
             numberOfRounds = 14;
@@ -106,8 +110,7 @@ public class AESController implements Initializable {
             System.out.println("192");
             len = 6;
             numberOfRounds = 12;
-        }
-        else {
+        } else {
             System.out.println("128");
         }
         key = new byte[len][4];
@@ -126,25 +129,101 @@ public class AESController implements Initializable {
     @FXML
     protected void onsaveCipherButtonClick() {
         System.out.println("zapisujesz szyfr");
+        //TODO: Zapisywanie pliku zaszyfrowanego
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        File selectedFile = fileChooser.showSaveDialog(null);
+        if (selectedFile != null) {
+            try (FileOutputStream fos = new FileOutputStream(selectedFile)) {
+                if (cipher != null && cipher.length > 0) {
+                    fos.write(cipher);
 
+                    System.out.println(Arrays.toString(cipher));
+                    System.out.println(cipher.length);
+
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @FXML
     protected void onsaveTextButtonClick() {
         System.out.println("zapisujesz tekst");
+        //TODO: Zapisywanie pliku z plaintextem
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        File selectedFile = fileChooser.showSaveDialog(null);
+        if (selectedFile != null) {
+            try (FileOutputStream fos = new FileOutputStream(selectedFile)) {
+                if (plainText != null && plainText.length > 0) {
+                    fos.write(plainText);
 
+                    System.out.println(Arrays.toString(plainText));
+                    System.out.println(plainText.length);
+
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @FXML
     protected void onopenTextFileButtonClick() {
         System.out.println("otwierasz plik z tekstem");
+        FileChooser fileChooser = new FileChooser();
+        //TODO: Zmienić ścieżkę
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            System.out.println(selectedFile);
+            try (FileInputStream fis = new FileInputStream(selectedFile)) {
+                plainText = new byte[(int) selectedFile.length()];
+                fis.read(plainText);
 
+                System.out.println(Arrays.toString(plainText));
+                System.out.println(plainText.length);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            StringBuilder tmp = new StringBuilder();
+            for (int i = 0; i < plainText.length; i++) {
+                tmp.append((char) plainText[i]);
+            }
+            textArea.setText(tmp.toString());
+        }
     }
 
     @FXML
     protected void onopenCipherButtonClick() {
         System.out.println("otwierasz plik z szyfrem");
+        //TODO: Wczytywanie pliku zaszyfrowanego
+        FileChooser fileChooser = new FileChooser();
+        //TODO: Zmienić ścieżkę
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            System.out.println(selectedFile);
+            try (FileInputStream fis = new FileInputStream(selectedFile)) {
+                cipher = new byte[(int) selectedFile.length()];
+                fis.read(cipher);
 
+                System.out.println(Arrays.toString(cipher));
+                System.out.println(cipher.length);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            StringBuilder tmp = new StringBuilder();
+            for (int i = 0; i < cipher.length; i++) {
+                tmp.append(String.format("%2x", Byte.parseByte(String.valueOf(cipher[i]))));
+            }
+            cipherArea.setText(tmp.toString().replaceAll("\\s", ""));
+        }
     }
 
     @FXML
@@ -161,19 +240,31 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onencipherButtonClick() {
-        System.out.println("szufrun");
+        System.out.println("Szyfrowanie");
 
-        if (textRadio.isSelected()){
+        if (textRadio.isSelected()) {
             String message = textArea.textProperty().get();
             plainText = message.getBytes();
+
             aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
             cipher = AES.aesEncryption(plainText);
             String cipherStr = new String(bytesToHex(cipher));
             cipherArea.textProperty().setValue(cipherStr);
-            System.out.println(Arrays.toString(cipher));
-            System.out.println(cipherStr);
+
+            System.out.println(plainText.length + " -> " + cipher.length);
+            //System.out.println(Arrays.toString(cipher));
+            //System.out.println(cipherStr);
         } else {
-        //    TODO: PLIK
+            if (plainText == null || plainText.length == 0) {
+                System.out.println("Nie wczytano pliku");
+            } else {
+                aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
+                cipher = AES.aesEncryption(plainText);
+                String cipherStr = new String(bytesToHex(cipher));
+                cipherArea.textProperty().setValue(cipherStr);
+
+                System.out.println(plainText.length + " -> " + cipher.length);
+            }
         }
 
         //System.out.println(Arrays.toString(bytes));
@@ -182,19 +273,33 @@ public class AESController implements Initializable {
 
     @FXML
     protected void ondecipherButtonClick() {
-        System.out.println("deszyfruj");
+        System.out.println("Deszyfrowanie");
 
-        if (textRadio.isSelected()){
-            if (cipher.length != 0){
+        if (textRadio.isSelected()) {
+            String message = cipherArea.textProperty().get();
+            cipher = DatatypeConverter.parseHexBinary(message);
+
+            System.out.println(Arrays.toString(cipher));
+            aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
+            plainText = AES.aesDecryption(cipher);
+            String plainStr = new String(plainText);
+            textArea.textProperty().setValue(plainStr);
+
+            System.out.println(cipher.length + " -> " + plainText.length);
+            //System.out.println(Arrays.toString(plainText));
+            //System.out.println(plainStr);
+
+        } else {
+            if (cipher == null || cipher.length == 0) {
+                System.out.println("Nie wczytano pliku");
+            } else {
                 aesAlgorithm AES = new aesAlgorithm(key, numberOfRounds);
                 plainText = AES.aesDecryption(cipher);
                 String plainStr = new String(plainText);
                 textArea.textProperty().setValue(plainStr);
-                System.out.println(Arrays.toString(plainText));
-                System.out.println(plainStr);
+
+                System.out.println(cipher.length + " -> " + plainText.length);
             }
-        } else {
-            //    TODO: PLIK
         }
     }
 
@@ -202,6 +307,9 @@ public class AESController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ToggleGroup group = new ToggleGroup();
         ToggleGroup group1 = new ToggleGroup();
+
+        textArea.setWrapText(true);
+
         plikRadio.setToggleGroup(group);
         textRadio.setSelected(true);
         textRadio.setToggleGroup(group);
@@ -211,14 +319,22 @@ public class AESController implements Initializable {
         bit192Radio.setToggleGroup(group1);
         bit256Radio.setToggleGroup(group1);
 
+        StringBuilder basicKey = new StringBuilder();
+        for (int i = 0; i < key.length; i++) {
+            for (int j = 0; j < key[0].length; j++) {
+                basicKey.append(String.format("%2x", Byte.parseByte(String.valueOf(key[i][j]))));
+            }
+        }
+        keyField.textProperty().setValue(String.valueOf(basicKey).replaceAll("\\s", ""));
 
     }
 
-    private String bytesToHex(byte[] arr){
+    private String bytesToHex(byte[] arr) {
         StringBuilder temp = new StringBuilder();
         for (int i = 0; i < arr.length; i++) {
             temp.append(String.format("%02x", Byte.parseByte(String.valueOf(arr[i]))));
         }
         return temp.toString();
     }
+
 }
