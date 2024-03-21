@@ -46,6 +46,7 @@ public class AESController implements Initializable {
     @FXML
     private TextField keyField;
 
+
     @FXML
     private TextField saveKeyFileField;
 
@@ -85,6 +86,9 @@ public class AESController implements Initializable {
     @FXML
     private RadioButton bit256Radio;
 
+    @FXML
+    private Button useKeyBtn;
+
     private byte[][] key = {
             {0x0, 0x1, 0x2, 0x3},
             {0x4, 0x5, 0x6, 0x7},
@@ -92,6 +96,7 @@ public class AESController implements Initializable {
             {0xc, 0xd, 0xe, 0xf}
     };
     private int numberOfRounds = 10;
+    private int len = 4;
     private byte[] bytes;
 
     private byte[] cipher;
@@ -101,7 +106,6 @@ public class AESController implements Initializable {
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
         System.out.println("generuje klucz");
         Random rand = new Random();
-        int len = 4;
         if (bit256Radio.isSelected()) {
             System.out.println("256");
             len = 8;
@@ -112,13 +116,15 @@ public class AESController implements Initializable {
             numberOfRounds = 12;
         } else {
             System.out.println("128");
+            len = 4;
+            numberOfRounds = 10;
         }
         key = new byte[len][4];
         StringBuilder hexKey = new StringBuilder();
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < 4; j++) {
                 key[i][j] = (byte) rand.nextInt(0x10);
-                hexKey.append(String.format("%2x", Byte.parseByte(String.valueOf(key[i][j]))));
+                hexKey.append(String.format("%02x", Byte.parseByte(String.valueOf(key[i][j]))));
             }
         }
         keyField.textProperty().setValue(hexKey.toString().replaceAll("\\s", ""));
@@ -322,7 +328,7 @@ public class AESController implements Initializable {
         StringBuilder basicKey = new StringBuilder();
         for (int i = 0; i < key.length; i++) {
             for (int j = 0; j < key[0].length; j++) {
-                basicKey.append(String.format("%2x", Byte.parseByte(String.valueOf(key[i][j]))));
+                basicKey.append(String.format("%02x", Byte.parseByte(String.valueOf(key[i][j]))));
             }
         }
         keyField.textProperty().setValue(String.valueOf(basicKey).replaceAll("\\s", ""));
@@ -337,4 +343,31 @@ public class AESController implements Initializable {
         return temp.toString();
     }
 
+    @FXML
+    private void onUseKeyBtn(){
+        //TODO: Wyjątki na nierówne długości klucza
+        if (bit256Radio.isSelected()) {
+            System.out.println("256");
+            len = 8;
+            numberOfRounds = 14;
+        } else if (bit192Radio.isSelected()) {
+            System.out.println("192");
+            len = 6;
+            numberOfRounds = 12;
+        } else {
+            System.out.println("128");
+            len = 4;
+            numberOfRounds = 10;
+        }
+        key = new byte[len][4];
+        byte[] tempKey = DatatypeConverter.parseHexBinary(keyField.textProperty().get());
+        int k  = 0;
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < 4; j++) {
+                key[i][j] = tempKey[k++];
+            }
+        }
+        System.out.println("Zapisany klucz");
+        System.out.println(Arrays.deepToString(key));
+    }
 }

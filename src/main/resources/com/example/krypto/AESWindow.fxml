@@ -36,6 +36,7 @@
                         <Insets left="60.0" />
                     </HBox.margin>
                 </Button>
+            <Button fx:id="useKeyBtn" mnemonicParsing="false" onAction="#onUseKeyBtn" text="Uzyj klucza" />
             </children>
         </HBox>
       <HBox prefHeight="20.0" prefWidth="830.0">
