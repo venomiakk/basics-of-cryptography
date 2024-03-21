@@ -79,7 +79,7 @@
                                 <Button fx:id="openTextFileButton" mnemonicParsing="false" onAction="#onopenTextFileButtonClick" prefHeight="26.0" prefWidth="98.0" text="otworz" />
                             </children>
                         </HBox>
-                        <TextArea fx:id="textArea" prefHeight="258.0" prefWidth="270.0" promptText="podaj tekst jawny">
+                        <TextArea fx:id="textArea" prefHeight="258.0" prefWidth="270.0" promptText="podaj tekst jawny" wrapText="true">
                             <VBox.margin>
                                 <Insets top="30.0" />
                             </VBox.margin>
@@ -118,7 +118,7 @@
                                 <Button fx:id="openCipherButton" mnemonicParsing="false" onAction="#onopenCipherButtonClick" prefHeight="26.0" prefWidth="98.0" text="otworz" />
                             </children>
                         </HBox>
-                        <TextArea fx:id="cipherArea" prefHeight="258.0" prefWidth="270.0" promptText="tutaj podaj szyfrogram">
+                        <TextArea fx:id="cipherArea" prefHeight="258.0" prefWidth="270.0" promptText="tutaj podaj szyfrogram" wrapText="true">
                             <VBox.margin>
                                 <Insets top="30.0" />
                             </VBox.margin>
