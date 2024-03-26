@@ -20,9 +20,10 @@ public class Main {
                 {0xc, 0xd, 0xe, 0xf}
         };
 
+        System.out.println(key[0][1]);
 
-        aesAlgorithm AES = new aesAlgorithm(key, 10);
-        AES.aesDecryption(AES.aesEncryption(message));
+        //aesAlgorithm AES = new aesAlgorithm(key, 10);
+        //AES.aesDecryption(AES.aesEncryption(message));
 
     }
 

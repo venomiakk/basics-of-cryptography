@@ -102,6 +102,8 @@ public class AESController implements Initializable {
     private byte[] cipher;
     private byte[] plainText;
 
+    private String path = "C:\\Users\\Adrian\\Desktop\\krypto\\pliki";
+
     @FXML
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
         System.out.println("generuje klucz");
@@ -137,7 +139,7 @@ public class AESController implements Initializable {
         System.out.println("zapisujesz szyfr");
         //TODO: Zapisywanie pliku zaszyfrowanego
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null) {
             try (FileOutputStream fos = new FileOutputStream(selectedFile)) {
@@ -159,7 +161,7 @@ public class AESController implements Initializable {
         System.out.println("zapisujesz tekst");
         //TODO: Zapisywanie pliku z plaintextem
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null) {
             try (FileOutputStream fos = new FileOutputStream(selectedFile)) {
@@ -234,13 +236,80 @@ public class AESController implements Initializable {
 
     @FXML
     protected void onsaveKeyFileButtonClick() {
-        System.out.println("zapiszujesz plik z klucze");
+        System.out.println("zapiszujesz plik z kluczem");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(path));
+        File selectedFile = fileChooser.showSaveDialog(null);
+        if (selectedFile != null) {
+            try (FileOutputStream fos = new FileOutputStream(selectedFile)) {
+                if (key != null && key.length > 0) {
+                    byte[] tmpKey = new byte[key.length * key[0].length];
+                    //System.out.println(key.length * key[0].length);
+                    int k = 0;
+                    for (int i = 0; i < key.length; i++) {
+                        for (int j = 0; j < key[0].length; j++) {
+                            tmpKey[k++] = key[i][j];
+                        }
+                    }
+                    System.out.println(Arrays.toString(tmpKey));
+                    fos.write(tmpKey);
 
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
     }
 
     @FXML
     protected void onloadKeyFileButtonClick() {
         System.out.println("otwierasz plik z klucze");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            System.out.println(selectedFile);
+            try (FileInputStream fis = new FileInputStream(selectedFile)) {
+                key = new byte[(int) selectedFile.length() / 4][4];
+                byte[] tmpKey = new byte[(int) selectedFile.length()];
+                fis.read(tmpKey);
+
+                if (tmpKey.length == 32){
+                    len = 8;
+                    numberOfRounds = 14;
+                    bit256Radio.setSelected(true);
+                } else if (tmpKey.length == 24) {
+                    len = 6;
+                    numberOfRounds = 12;
+                    bit192Radio.setSelected(true);
+                } else if (tmpKey.length == 16){
+                    len = 4;
+                    numberOfRounds = 10;
+                    bit128Radio.setSelected(true);
+                } else {
+                    System.out.println("Niepoprawny klucz");
+                    throw new Exception();
+                }
+
+                int k = 0;
+                for (int i = 0; i < key.length; i++) {
+                    for (int j = 0; j < key[0].length; j++) {
+                        key[i][j] = tmpKey[k++];
+                    }
+                }
+                System.out.println(Arrays.toString(tmpKey));
+                System.out.println(Arrays.deepToString(key));
+                StringBuilder showKey = new StringBuilder();
+                for (int i = 0; i < tmpKey.length; i++) {
+                    showKey.append(String.format("%02x", Byte.parseByte(String.valueOf(tmpKey[i]))));
+                }
+                keyField.textProperty().setValue(String.valueOf(showKey).replaceAll("\\s", ""));
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 
@@ -344,7 +413,7 @@ public class AESController implements Initializable {
     }
 
     @FXML
-    private void onUseKeyBtn(){
+    private void onUseKeyBtn() {
         //TODO: Wyjątki na nierówne długości klucza
         if (bit256Radio.isSelected()) {
             System.out.println("256");
@@ -361,7 +430,7 @@ public class AESController implements Initializable {
         }
         key = new byte[len][4];
         byte[] tempKey = DatatypeConverter.parseHexBinary(keyField.textProperty().get());
-        int k  = 0;
+        int k = 0;
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < 4; j++) {
                 key[i][j] = tempKey[k++];
