@@ -250,6 +250,7 @@ public class aesAlgorithm {
 
     public byte[] aesEncryption(byte[] messageParam) {
         byte[] interimMessage = messageParam.clone();
+        int originalMsgLen = messageParam.length;
 
         //Fit length of the message
         int len = messageParam.length / 16;
@@ -277,13 +278,13 @@ public class aesAlgorithm {
             //TODO coś z tym określaniem dodanych 0 trzeba zrobić ale inaczej chyba
             //Spróbować po zaszyfrowaniu usuwać dodane bajty a przy deszyfrowaniu doppisywać i potem usuwać
             //W tym momencie przy deszyforwaniu jak nie dodamy nic to chyba sie wywali
-            if (numOfZeros!=0){
-                formattedMessage[formattedMessage.length-1] = (byte) numOfZeros;
-            }
+            //if (numOfZeros!=0){
+            //    formattedMessage[formattedMessage.length-1] = (byte) numOfZeros;
+            //}
         }
 
         //Divide to blocks 4x4
-        byte[] cipher = new byte[desiredLen];
+        byte[] cipher = new byte[desiredLen+1];
         int msgIndex = 0;
         int index = 0;
         byte[][] block = new byte[4][4];
@@ -304,7 +305,8 @@ public class aesAlgorithm {
                 }
             }
         }
-        System.out.println("Zaszyfrowany blok:");
+        cipher[desiredLen] = (byte) numOfZeros;
+        System.out.println("Zaszyfrowana wiadomosc:");
         System.out.println(Arrays.toString(cipher));
         return cipher;
     }
@@ -517,13 +519,14 @@ public class aesAlgorithm {
 
 
     public byte[] aesDecryption(byte[] messageParam) {
-        byte[] interimMessage = messageParam.clone();
-
-        //TODO: Jakieś exception
-        if (interimMessage.length % 16 != 0){
-            System.out.println("zła długość szyfrogramu!");
-            return interimMessage;
+        byte[] interimMessage = new byte[messageParam.length - 1];
+        for (int i = 0; i <interimMessage.length; i++) {
+            interimMessage[i] = messageParam[i];
         }
+
+        int addedZeros = messageParam[messageParam.length - 1];
+
+        System.out.println("Z dodanymi 0: " + Arrays.toString(interimMessage));
 
         byte[] plainText = new byte[interimMessage.length];
         int msgIndex = 0;
@@ -532,8 +535,7 @@ public class aesAlgorithm {
         while (index < interimMessage.length) {
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    block[i][j] = interimMessage[index];
-                    index++;
+                    block[i][j] = interimMessage[index++];
                 }
             }
             System.out.println("Blok do zdeszyfrowania: " + Arrays.deepToString(block));
@@ -547,15 +549,12 @@ public class aesAlgorithm {
 
         }
 
-        //TODO: Nwm czy nie będzie to przedszkadzało plikom
-        //TO napewno popsuje pliki
-        int numOfZeros = plainText[plainText.length-1];
-        byte[] output = new byte[plainText.length-numOfZeros];
+        byte[] output = new byte[interimMessage.length-addedZeros];
         for (int i = 0; i < output.length; i++) {
             output[i] = plainText[i];
         }
 
-        System.out.println("Zdeszyfrowany blok:");
+        System.out.println("Zdeszyfrowana wiadomosc:");
         System.out.println(Arrays.toString(output));
         return output;
     }
