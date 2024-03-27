@@ -102,7 +102,7 @@ public class AESController implements Initializable {
     private byte[] cipher;
     private byte[] plainText;
 
-    private String path = "C:\\Users\\Adrian\\Desktop\\krypto\\pliki";
+    private String path = "C:\\Users\\venom\\Desktop\\krypto";
 
     @FXML
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
@@ -183,7 +183,7 @@ public class AESController implements Initializable {
         System.out.println("otwierasz plik z tekstem");
         FileChooser fileChooser = new FileChooser();
         //TODO: Zmienić ścieżkę
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             System.out.println(selectedFile);
@@ -211,7 +211,7 @@ public class AESController implements Initializable {
         //TODO: Wczytywanie pliku zaszyfrowanego
         FileChooser fileChooser = new FileChooser();
         //TODO: Zmienić ścieżkę
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             System.out.println(selectedFile);
@@ -266,7 +266,7 @@ public class AESController implements Initializable {
     protected void onloadKeyFileButtonClick() {
         System.out.println("otwierasz plik z klucze");
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File("C:\\Users\\Adrian\\Desktop\\krypto\\pliki"));
+        fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             System.out.println(selectedFile);
