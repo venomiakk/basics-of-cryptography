@@ -102,7 +102,7 @@ public class AESController implements Initializable {
     private byte[] cipher;
     private byte[] plainText;
 
-    private String path = "C:\\Users\\Adrian\\Desktop\\krypto\\pliki";
+    private String path = "../";
 
     @FXML
     protected void onGenerateKeyButtonClick() throws UnsupportedEncodingException {
