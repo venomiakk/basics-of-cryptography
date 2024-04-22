@@ -17,19 +17,19 @@
         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="klucz" />
         <HBox prefHeight="13.0" prefWidth="262.0">
             <children>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="q oraz g" wrappingWidth="181.33662033081055" />
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="q oraz h" wrappingWidth="181.33662033081055" />
             <TextField fx:id="qAndGField" editable="false" prefHeight="26.0" prefWidth="666.0" />
             </children>
         </HBox>
         <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz publiczny: y" wrappingWidth="180.5367088317871" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz publiczny: b" wrappingWidth="180.5367088317871" />
             <TextField fx:id="publicYKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
          </children>
         </HBox>
       <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz prywatny: x" wrappingWidth="180.5367088317871" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz prywatny: a" wrappingWidth="180.5367088317871" />
             <TextField fx:id="privateXKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
          </children>
       </HBox>
@@ -42,7 +42,7 @@
       <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wygeneruj wartosci kluczy" wrappingWidth="180.5367088317871" />
-            <Button fx:id="generateKeyButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="198.0" text="Generuj klucze" />
+            <Button fx:id="generateKeyButton" mnemonicParsing="false" onAction="#onGenerateKeyButtonClick" prefHeight="26.0" prefWidth="198.0" text="Generuj klucze" />
          </children>
       </HBox>
         <HBox prefHeight="0.0" prefWidth="710.0">
