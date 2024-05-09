@@ -1,14 +1,18 @@
 package com.example.krypto;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.Random;
+import java.util.ResourceBundle;
 
-public class DSAController
+public class DSAController implements Initializable
 {
     @FXML
     private Button saveCipherButton;
@@ -73,8 +77,19 @@ public class DSAController
     @FXML
     private TextArea cipherArea;
 
+    @FXML
+    private RadioButton plikRadio;
 
+    @FXML
+    private RadioButton textRadio;
 
+    private dsaAlgorithm DSA = new dsaAlgorithm();
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
+        System.out.println("inicjalizacja");
+        
+    }
 
     @FXML
     protected void onGenerateKeyButtonClick() {
@@ -120,13 +135,25 @@ public class DSAController
 
     @FXML
     protected void onencipherButtonClick() {
-        System.out.println("szufrun");
+        System.out.println("podpis");
+        if (textRadio.isSelected()){
+            System.out.println("tekst");
+        }
+        else {
+            System.out.println("plik");
+        }
 
     }
 
     @FXML
     protected void ondecipherButtonClick() {
-        System.out.println("deszyfruj");
+        System.out.println("weryfikacja");
+        if (textRadio.isSelected()){
+            System.out.println("tekst");
+        }
+        else {
+            System.out.println("plik");
+        }
 
     }
 
