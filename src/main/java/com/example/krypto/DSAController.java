@@ -211,6 +211,7 @@ public class DSAController implements Initializable {
 
     @FXML
     protected void onopenCipherButtonClick() {
+        // TODO zmienic tak aby wcztywal sie zmieniony plik z podpisami i klucze tez zmienic
         System.out.println("otwierasz plik z szyfrem");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(path));
