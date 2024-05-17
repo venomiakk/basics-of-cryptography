@@ -118,21 +118,6 @@ public class DSAController implements Initializable {
         System.out.println(dsaAlgorithm.q);
     }
 
-    @FXML
-    protected void onsaveCipherButtonClick() {
-        System.out.println("zapisujesz szyfr");
-        dsaSignatures sigs = new dsaSignatures(dsaAlgorithm.s1, dsaAlgorithm.s2);
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File(path));
-        File selectedFile = fileChooser.showSaveDialog(null);
-        if (selectedFile != null) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(selectedFile))) {
-                oos.writeObject(sigs);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     @FXML
     protected void onsaveTextButtonClick() {
@@ -142,7 +127,7 @@ public class DSAController implements Initializable {
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null) {
             if (textRadio.isSelected()) {
-                try (FileWriter writer = new FileWriter(selectedFile);) {
+                try (FileWriter writer = new FileWriter(selectedFile)) {
                     if (textArea.textProperty().get() != null && !textArea.textProperty().get().isEmpty()) {
                         writer.write(textArea.getText());
                     }
@@ -210,28 +195,41 @@ public class DSAController implements Initializable {
     }
 
     @FXML
-    protected void onopenCipherButtonClick() {
+    protected void onsaveCipherButtonClick() {
+        System.out.println("zapisujesz szyfr");
+        String[] sigs = cipherArea.getText().split("\n");
+        dsaAlgorithm.s1 = new BigInteger(sigs[0]);
+        dsaAlgorithm.s2 = new BigInteger(sigs[1]);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(path));
+        File selectedFile = fileChooser.showSaveDialog(null);
+        if (selectedFile != null) {
+            try (FileWriter writer = new FileWriter(selectedFile)) {
+                writer.write(cipherArea.getText());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @FXML
+    protected void onopenCipherButtonClick() throws FileNotFoundException {
         // TODO zmienic tak aby wcztywal sie zmieniony plik z podpisami i klucze tez zmienic
         System.out.println("otwierasz plik z szyfrem");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(selectedFile))) {
-                dsaSignatures sigs = (dsaSignatures) ois.readObject();
-                dsaAlgorithm.s1 = sigs.s1;
-                dsaAlgorithm.s2 = sigs.s2;
-                cipherArea.textProperty().setValue(String.valueOf(dsaAlgorithm.s1) + '\n' + String.valueOf(dsaAlgorithm.s2));
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+        Scanner reader = new Scanner(selectedFile);
+        StringBuilder data = new StringBuilder();
+        while (reader.hasNextLine()) {
+            data.append(reader.nextLine()).append("\n");
         }
-
+        System.out.println(data);
+        reader.close();
+        cipherArea.textProperty().setValue(data.toString());
+        String[] sigs = data.toString().split("\n");
+        dsaAlgorithm.s1 = new BigInteger(sigs[0]);
+        dsaAlgorithm.s2 = new BigInteger(sigs[1]);
     }
 
     @FXML
