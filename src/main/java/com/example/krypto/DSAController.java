@@ -39,6 +39,9 @@ public class DSAController implements Initializable {
     private Button decipherButton;
 
     @FXML
+    private Button useKeysBtn;
+
+    @FXML
     private TextField qAndGField;
 
     @FXML
@@ -95,7 +98,7 @@ public class DSAController implements Initializable {
         dsaAlgorithm.generateP();
         dsaAlgorithm.generateH();
         dsaAlgorithm.generateAandB();
-        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() + dsaAlgorithm.h.toString());
+        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() +" "+ dsaAlgorithm.h.toString());
         publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
         privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
         modPField.textProperty().setValue(dsaAlgorithm.p.toString());
@@ -111,13 +114,29 @@ public class DSAController implements Initializable {
         dsaAlgorithm.generateP();
         dsaAlgorithm.generateH();
         dsaAlgorithm.generateAandB();
-        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() + dsaAlgorithm.h.toString());
+        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() +" "+ dsaAlgorithm.h.toString());
         publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
         privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
         modPField.textProperty().setValue(dsaAlgorithm.p.toString());
-        System.out.println(dsaAlgorithm.q);
+
     }
 
+    @FXML
+    protected void onUseKeysBtn(){
+        System.out.println("Uzyj kluczy");
+        String[] qandh = qAndGField.getText().split(" ");
+        dsaAlgorithm.q = new BigInteger(qandh[0]);
+        dsaAlgorithm.h = new BigInteger(qandh[1]);
+        dsaAlgorithm.b = new BigInteger(String.valueOf(publicYKeyField.getText()));
+        dsaAlgorithm.a = new BigInteger(String.valueOf(privateXKeyField.getText()));
+        dsaAlgorithm.p = new BigInteger(String.valueOf(modPField.getText()));
+        System.out.println(dsaAlgorithm.q);
+        System.out.println(dsaAlgorithm.h);
+        System.out.println(dsaAlgorithm.b);
+        System.out.println(dsaAlgorithm.a);
+        System.out.println(dsaAlgorithm.p);
+
+    }
 
     @FXML
     protected void onsaveTextButtonClick() {
@@ -214,7 +233,6 @@ public class DSAController implements Initializable {
 
     @FXML
     protected void onopenCipherButtonClick() throws FileNotFoundException {
-        // TODO zmienic tak aby wcztywal sie zmieniony plik z podpisami i klucze tez zmienic
         System.out.println("otwierasz plik z szyfrem");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(path));
@@ -235,48 +253,82 @@ public class DSAController implements Initializable {
     @FXML
     protected void onsaveKeyFileButtonClick() {
         System.out.println("zapiszujesz plik z klucze");
-        dsaKeys keys = new dsaKeys(dsaAlgorithm.q, dsaAlgorithm.h, dsaAlgorithm.a, dsaAlgorithm.b, dsaAlgorithm.p);
+        //dsaKeys keys = new dsaKeys(dsaAlgorithm.q, dsaAlgorithm.h, dsaAlgorithm.a, dsaAlgorithm.b, dsaAlgorithm.p);
+        //
+        //FileChooser fileChooser = new FileChooser();
+        //fileChooser.setInitialDirectory(new File(path));
+        //File selectedFile = fileChooser.showSaveDialog(null);
+        //if (selectedFile != null) {
+        //    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(selectedFile))) {
+        //        oos.writeObject(keys);
+        //    } catch (IOException e) {
+        //        e.printStackTrace();
+        //    }
+        //}
+        String keys = dsaAlgorithm.q + "\n" + dsaAlgorithm.h + "\n" + dsaAlgorithm.b +
+                "\n" + dsaAlgorithm.a + "\n" + dsaAlgorithm.p + "\n";
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showSaveDialog(null);
         if (selectedFile != null) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(selectedFile))) {
-                oos.writeObject(keys);
+            try (FileWriter writer = new FileWriter(selectedFile)) {
+                writer.write(keys);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
     @FXML
-    protected void onloadKeyFileButtonClick() {
+    protected void onloadKeyFileButtonClick() throws FileNotFoundException {
         System.out.println("otwierasz plik z klucze");
+        //FileChooser fileChooser = new FileChooser();
+        //fileChooser.setInitialDirectory(new File(path));
+        //File selectedFile = fileChooser.showOpenDialog(null);
+        //if (selectedFile != null) {
+        //    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(selectedFile))) {
+        //        dsaKeys keys = (dsaKeys) ois.readObject();
+        //        dsaAlgorithm.p = keys.modp;
+        //        dsaAlgorithm.h = keys.h;
+        //        dsaAlgorithm.q = keys.q;
+        //        dsaAlgorithm.a = keys.a;
+        //        dsaAlgorithm.b = keys.b;
+        //        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() + dsaAlgorithm.h.toString());
+        //        publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
+        //        privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
+        //        modPField.textProperty().setValue(dsaAlgorithm.p.toString());
+        //
+        //    } catch (FileNotFoundException e) {
+        //        throw new RuntimeException(e);
+        //    } catch (IOException e) {
+        //        throw new RuntimeException(e);
+        //    } catch (ClassNotFoundException e) {
+        //        throw new RuntimeException(e);
+        //    }
+        //}
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(path));
         File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(selectedFile))) {
-                dsaKeys keys = (dsaKeys) ois.readObject();
-                dsaAlgorithm.p = keys.modp;
-                dsaAlgorithm.h = keys.h;
-                dsaAlgorithm.q = keys.q;
-                dsaAlgorithm.a = keys.a;
-                dsaAlgorithm.b = keys.b;
-                qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() + dsaAlgorithm.h.toString());
-                publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
-                privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
-                modPField.textProperty().setValue(dsaAlgorithm.p.toString());
-
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+        Scanner reader = new Scanner(selectedFile);
+        StringBuilder data = new StringBuilder();
+        while (reader.hasNextLine()) {
+            data.append(reader.nextLine()).append("\n");
         }
+        System.out.println(data);
+        reader.close();
+        String[] keys = data.toString().split("\n");
+
+        dsaAlgorithm.q = new BigInteger(keys[0]);
+        dsaAlgorithm.h = new BigInteger(keys[1]);
+        dsaAlgorithm.b = new BigInteger(keys[2]);
+        dsaAlgorithm.a = new BigInteger(keys[3]);
+        dsaAlgorithm.p = new BigInteger(keys[4]);
+
+        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() +" "+ dsaAlgorithm.h.toString());
+        publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
+        privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
+        modPField.textProperty().setValue(dsaAlgorithm.p.toString());
     }
 
     @FXML

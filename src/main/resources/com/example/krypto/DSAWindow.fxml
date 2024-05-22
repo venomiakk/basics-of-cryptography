@@ -19,31 +19,36 @@
         <HBox prefHeight="13.0" prefWidth="262.0">
             <children>
                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="q oraz h" wrappingWidth="181.33662033081055" />
-            <TextField fx:id="qAndGField" editable="false" prefHeight="26.0" prefWidth="666.0" />
+            <TextField fx:id="qAndGField" prefHeight="26.0" prefWidth="666.0" />
             </children>
         </HBox>
         <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz publiczny: b" wrappingWidth="180.5367088317871" />
-            <TextField fx:id="publicYKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+            <TextField fx:id="publicYKeyField" prefHeight="26.0" prefWidth="679.0" />
          </children>
         </HBox>
       <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Klucz prywatny: a" wrappingWidth="180.5367088317871" />
-            <TextField fx:id="privateXKeyField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+            <TextField fx:id="privateXKeyField" prefHeight="26.0" prefWidth="679.0" />
          </children>
       </HBox>
       <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="MOD p" wrappingWidth="180.5367088317871" />
-            <TextField fx:id="modPField" editable="false" prefHeight="26.0" prefWidth="679.0" />
+            <TextField fx:id="modPField" prefHeight="26.0" prefWidth="679.0" />
          </children>
       </HBox>
       <HBox prefHeight="29.0" prefWidth="710.0">
          <children>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="wygeneruj wartosci kluczy" wrappingWidth="180.5367088317871" />
             <Button fx:id="generateKeyButton" mnemonicParsing="false" onAction="#onGenerateKeyButtonClick" prefHeight="26.0" prefWidth="198.0" text="Generuj klucze" />
+            <Button fx:id="useKeysBtn" mnemonicParsing="false" onAction="#onUseKeysBtn" text="Użyj kluczy">
+               <HBox.margin>
+                  <Insets left="15.0" />
+               </HBox.margin>
+            </Button>
          </children>
       </HBox>
         <HBox prefHeight="0.0" prefWidth="710.0">
