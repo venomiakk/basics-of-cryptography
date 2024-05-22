@@ -244,10 +244,16 @@ public class DSAController implements Initializable {
         }
         System.out.println(data);
         reader.close();
-        cipherArea.textProperty().setValue(data.toString());
         String[] sigs = data.toString().split("\n");
-        dsaAlgorithm.s1 = new BigInteger(sigs[0]);
-        dsaAlgorithm.s2 = new BigInteger(sigs[1]);
+        if (sigs.length < 2) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Plik nie jest poprawny!");
+            alert.showAndWait();
+        } else {
+            cipherArea.textProperty().setValue(data.toString());
+            dsaAlgorithm.s1 = new BigInteger(sigs[0]);
+            dsaAlgorithm.s2 = new BigInteger(sigs[1]);
+        }
     }
 
     @FXML
@@ -318,17 +324,23 @@ public class DSAController implements Initializable {
         System.out.println(data);
         reader.close();
         String[] keys = data.toString().split("\n");
+        if (keys.length < 5) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Plik nie jest poprawny!");
+            alert.showAndWait();
+        } else {
+            dsaAlgorithm.q = new BigInteger(keys[0]);
+            dsaAlgorithm.h = new BigInteger(keys[1]);
+            dsaAlgorithm.b = new BigInteger(keys[2]);
+            dsaAlgorithm.a = new BigInteger(keys[3]);
+            dsaAlgorithm.p = new BigInteger(keys[4]);
 
-        dsaAlgorithm.q = new BigInteger(keys[0]);
-        dsaAlgorithm.h = new BigInteger(keys[1]);
-        dsaAlgorithm.b = new BigInteger(keys[2]);
-        dsaAlgorithm.a = new BigInteger(keys[3]);
-        dsaAlgorithm.p = new BigInteger(keys[4]);
+            qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() +" "+ dsaAlgorithm.h.toString());
+            publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
+            privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
+            modPField.textProperty().setValue(dsaAlgorithm.p.toString());
+        }
 
-        qAndGField.textProperty().setValue(dsaAlgorithm.q.toString() +" "+ dsaAlgorithm.h.toString());
-        publicYKeyField.textProperty().setValue(dsaAlgorithm.b.toString());
-        privateXKeyField.textProperty().setValue(dsaAlgorithm.a.toString());
-        modPField.textProperty().setValue(dsaAlgorithm.p.toString());
     }
 
     @FXML
